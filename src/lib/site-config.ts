@@ -44,7 +44,7 @@ export const siteConfig = {
   name: "Trackr",
   description: "Personal Finance Management app created in NextJS",
   navLinks: ["dashboard", "accounts", "transactions", "groups"] as const,
-
+  cashBankName: "Cash",
   acctTypes: [
     ACCT_TYPE.SAVINGS,
     ACCT_TYPE.CREDITCARD,

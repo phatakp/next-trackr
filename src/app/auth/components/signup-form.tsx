@@ -4,14 +4,12 @@ import { Button } from "@/components/ui/button";
 import FormInput from "@/components/ui/custom/form-input";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { register } from "../actions";
 
 export default function SignUpForm() {
-  const router = useRouter();
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
