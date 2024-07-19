@@ -1,6 +1,6 @@
+"use server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-
-import { protectedProcedure, publicProcedure } from "@/lib/zsa";
 import { LoginSchema, RegisterSchema } from "./zod-schemas";
 
 const getURL = () => {
@@ -15,44 +15,46 @@ const getURL = () => {
   return url;
 };
 
-export const loginWithPassword = publicProcedure
-  .createServerAction()
-  .input(LoginSchema)
-  .handler(async ({ ctx, input }) => {
-    const { error } = await ctx.supabase.auth.signInWithPassword(input);
-    if (error) throw error.message;
+export async function loginWithPassword(input: Zod.infer<typeof LoginSchema>) {
+  const supabase = await createClient();
+  const { success } = LoginSchema.safeParse(input);
+  if (!success) return { error: "Invalid Input" };
+  const { data, error } = await supabase.auth.signInWithPassword(input);
+  if (error) return { error: error.message };
+  return data;
+}
+
+export async function register(input: Zod.infer<typeof RegisterSchema>) {
+  const supabase = await createClient();
+  const { data, success } = RegisterSchema.safeParse(input);
+  if (!success) return { error: "Invalid Input" };
+  const { error } = await supabase.auth.signUp({
+    ...input,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+    },
+  });
+  if (error) return { error: error.message };
+  return data;
+}
+
+export async function loginWithGoogle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
   });
 
-export const loginWithGoogle = publicProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
-    });
-    if (error) throw error.message;
-    return data;
-  });
+  if (error) return { error: error.message, url: null, provider: null };
+  return redirect(data.url);
+}
 
-export const register = publicProcedure
-  .createServerAction()
-  .input(RegisterSchema)
-  .handler(async ({ ctx, input }) => {
-    const { error } = await ctx.supabase.auth.signUp({
-      ...input,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
-      },
-    });
-    if (error) throw new Error(error.message);
-  });
+export async function logout() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut({ scope: "local" });
 
-export const logout = protectedProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { error } = await ctx.supabase.auth.signOut({ scope: "local" });
-    if (error) throw error.message;
-    redirect("/");
-  });
+  if (error) return { error: error.message };
+  return redirect("/");
+}

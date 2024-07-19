@@ -21,8 +21,8 @@ export default function SignUpForm() {
   });
 
   async function onSubmit(values: z.infer<typeof RegisterSchema>) {
-    const [, error] = await register(values);
-    if (error) toast.error(error.message);
+    const resp = await register(values);
+    if (resp?.serverError) toast.error(resp.serverError);
     else {
       toast.success("Please check your email");
     }

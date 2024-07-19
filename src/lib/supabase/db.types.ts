@@ -16,11 +16,11 @@ export type Database = {
           bank_id: number
           curr_value: number
           id: number
-          inv_type: Database["public"]["Enums"]["Investment Type Enum"] | null
+          inv_type: Database["public"]["Enums"]["investment_type_enum"] | null
           is_default: boolean
           name: string
           number: string
-          type: Database["public"]["Enums"]["Acct Type Enum"]
+          type: Database["public"]["Enums"]["account_type_enum"]
           user_id: string
         }
         Insert: {
@@ -29,11 +29,11 @@ export type Database = {
           bank_id: number
           curr_value?: number
           id?: number
-          inv_type?: Database["public"]["Enums"]["Investment Type Enum"] | null
+          inv_type?: Database["public"]["Enums"]["investment_type_enum"] | null
           is_default?: boolean
           name: string
           number: string
-          type: Database["public"]["Enums"]["Acct Type Enum"]
+          type: Database["public"]["Enums"]["account_type_enum"]
           user_id?: string
         }
         Update: {
@@ -42,11 +42,11 @@ export type Database = {
           bank_id?: number
           curr_value?: number
           id?: number
-          inv_type?: Database["public"]["Enums"]["Investment Type Enum"] | null
+          inv_type?: Database["public"]["Enums"]["investment_type_enum"] | null
           is_default?: boolean
           name?: string
           number?: string
-          type?: Database["public"]["Enums"]["Acct Type Enum"]
+          type?: Database["public"]["Enums"]["account_type_enum"]
           user_id?: string
         }
         Relationships: [
@@ -70,17 +70,17 @@ export type Database = {
         Row: {
           id: number
           name: string
-          type: Database["public"]["Enums"]["Acct Type Enum"]
+          type: Database["public"]["Enums"]["account_type_enum"]
         }
         Insert: {
           id?: number
           name: string
-          type: Database["public"]["Enums"]["Acct Type Enum"]
+          type: Database["public"]["Enums"]["account_type_enum"]
         }
         Update: {
           id?: number
           name?: string
-          type?: Database["public"]["Enums"]["Acct Type Enum"]
+          type?: Database["public"]["Enums"]["account_type_enum"]
         }
         Relationships: []
       }
@@ -88,17 +88,17 @@ export type Database = {
         Row: {
           id: number
           name: string
-          type: Database["public"]["Enums"]["Category Type Enum"]
+          type: Database["public"]["Enums"]["category_type_enum"]
         }
         Insert: {
           id?: number
           name: string
-          type: Database["public"]["Enums"]["Category Type Enum"]
+          type: Database["public"]["Enums"]["category_type_enum"]
         }
         Update: {
           id?: number
           name?: string
-          type?: Database["public"]["Enums"]["Category Type Enum"]
+          type?: Database["public"]["Enums"]["category_type_enum"]
         }
         Relationships: []
       }
@@ -107,7 +107,6 @@ export type Database = {
           acct_id: number
           buy_price: number
           curr_price: number
-          id: number
           money_control_prefix: string
           quantity: number
         }
@@ -115,7 +114,6 @@ export type Database = {
           acct_id: number
           buy_price?: number
           curr_price?: number
-          id?: number
           money_control_prefix: string
           quantity?: number
         }
@@ -123,7 +121,6 @@ export type Database = {
           acct_id?: number
           buy_price?: number
           curr_price?: number
-          id?: number
           money_control_prefix?: string
           quantity?: number
         }
@@ -131,7 +128,7 @@ export type Database = {
           {
             foreignKeyName: "equity_accounts_acct_id_fkey"
             columns: ["acct_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
@@ -185,21 +182,18 @@ export type Database = {
       mf_accounts: {
         Row: {
           acct_id: number
-          id: number
           is_sip: boolean
           nav: number
           units: number
         }
         Insert: {
           acct_id: number
-          id?: number
           is_sip?: boolean
           nav?: number
           units?: number
         }
         Update: {
           acct_id?: number
-          id?: number
           is_sip?: boolean
           nav?: number
           units?: number
@@ -208,7 +202,7 @@ export type Database = {
           {
             foreignKeyName: "mf_aacounts_acct_id_fkey"
             columns: ["acct_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
@@ -217,34 +211,26 @@ export type Database = {
       recurring_txns: {
         Row: {
           end_date: string | null
-          frequency: Database["public"]["Enums"]["Frequency Type Enum"]
+          frequency: Database["public"]["Enums"]["frequency_type_enum"]
           id: number
+          last_txn_date: string
           start_date: string
-          txn_id: number
         }
         Insert: {
           end_date?: string | null
-          frequency: Database["public"]["Enums"]["Frequency Type Enum"]
+          frequency: Database["public"]["Enums"]["frequency_type_enum"]
           id?: number
+          last_txn_date: string
           start_date: string
-          txn_id: number
         }
         Update: {
           end_date?: string | null
-          frequency?: Database["public"]["Enums"]["Frequency Type Enum"]
+          frequency?: Database["public"]["Enums"]["frequency_type_enum"]
           id?: number
+          last_txn_date?: string
           start_date?: string
-          txn_id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "recurring_txns_txn_id_fkey"
-            columns: ["txn_id"]
-            isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       transactions: {
         Row: {
@@ -256,8 +242,9 @@ export type Database = {
           destination_id: number | null
           group_id: number | null
           id: number
+          recurring_id: number | null
           source_id: number | null
-          type: Database["public"]["Enums"]["Transaction Type Enum"]
+          type: Database["public"]["Enums"]["transaction_type_enum"]
           user_id: string
         }
         Insert: {
@@ -269,8 +256,9 @@ export type Database = {
           destination_id?: number | null
           group_id?: number | null
           id?: number
+          recurring_id?: number | null
           source_id?: number | null
-          type: Database["public"]["Enums"]["Transaction Type Enum"]
+          type: Database["public"]["Enums"]["transaction_type_enum"]
           user_id?: string
         }
         Update: {
@@ -282,8 +270,9 @@ export type Database = {
           destination_id?: number | null
           group_id?: number | null
           id?: number
+          recurring_id?: number | null
           source_id?: number | null
-          type?: Database["public"]["Enums"]["Transaction Type Enum"]
+          type?: Database["public"]["Enums"]["transaction_type_enum"]
           user_id?: string
         }
         Relationships: [
@@ -306,6 +295,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_recurring_id_fkey"
+            columns: ["recurring_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_txns"
             referencedColumns: ["id"]
           },
           {
@@ -333,15 +329,49 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      insert_into_accounts: {
+        Args: {
+          name: string
+          type: string
+          number: string
+          balance: number
+          curr_value: number
+          bank_id: number
+          as_of_date: string
+          investment_type?: string
+          curr_price?: number
+          buy_price?: number
+          quantity?: number
+          prefix?: string
+          is_sip?: boolean
+          units?: number
+          nav?: number
+        }
+        Returns: number
+      }
+      update_accounts: {
+        Args: {
+          id_: number
+          bal: number
+          asofdate: string
+          currvalue?: number
+          currprice?: number
+          buyprice?: number
+          qty?: number
+          units_?: number
+          nav_?: number
+        }
+        Returns: number
+      }
     }
     Enums: {
-      "Acct Type Enum":
+      account_type_enum:
         | "savings"
         | "credit-card"
         | "wallet"
         | "investment"
         | "mortgage"
-      "Category Type Enum":
+      category_type_enum:
         | "food"
         | "transportation"
         | "household"
@@ -351,7 +381,7 @@ export type Database = {
         | "income"
         | "transfer"
         | "miscellaneous"
-      "Frequency Type Enum":
+      frequency_type_enum:
         | "daily"
         | "weekly"
         | "biweekly"
@@ -359,8 +389,8 @@ export type Database = {
         | "quarterly"
         | "half-yearly"
         | "annually"
-      "Investment Type Enum": "equity" | "fund" | "fd"
-      "Transaction Type Enum": "expense" | "income" | "transfer"
+      investment_type_enum: "equity" | "fund" | "fd"
+      transaction_type_enum: "expense" | "income" | "transfer"
     }
     CompositeTypes: {
       [_ in never]: never

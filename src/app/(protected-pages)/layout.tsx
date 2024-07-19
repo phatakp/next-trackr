@@ -1,3 +1,4 @@
+import { ProtectedPageHeader } from "@/components/common/protected-page-header";
 import { syncUser } from "@/server/users.actions";
 import { type ReactNode } from "react";
 
@@ -6,7 +7,12 @@ export default async function ProtectedLayout({
 }: {
   children: ReactNode;
 }) {
-  const [, err] = await syncUser();
+  await syncUser();
   // if (err) console.error(err);
-  return <>{children}</>;
+  return (
+    <>
+      <ProtectedPageHeader />
+      {children}
+    </>
+  );
 }

@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { type FC } from "react";
 import { useFormContext } from "react-hook-form";
-import InputWithLabel from "./input-with-label";
+import { InputWithLabel } from "./input-with-label";
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -28,6 +28,7 @@ const FormInput: FC<FormInputProps> = ({
   onChange,
   disabled,
   isLoading = false,
+  ...props
 }) => {
   const {
     control,
@@ -40,16 +41,18 @@ const FormInput: FC<FormInputProps> = ({
       control={control}
       name={name!}
       render={({ field }) => {
-        const { value: fvalue, onChange: fChange, ...props } = field;
+        const { value: fvalue, onChange: fChange } = field;
         return (
           <FormItem
             className={cn(
               "animate-in zoom-in-95 fade-in-0 slide-in-from-left-2 duration-500",
-              type === "hidden" ? "w-0" : "w-full"
+              type === "hidden" ? "w-0" : "w-full",
+              className
             )}
           >
             <FormControl>
               <InputWithLabel
+                name={name}
                 label={label}
                 type={type}
                 value={value ?? fvalue}
@@ -95,7 +98,7 @@ const FormInput: FC<FormInputProps> = ({
                 </FormMessage>
               </div> */}
             </FormControl>
-            <FormDescription>{desc}</FormDescription>
+            {desc && <FormDescription>{desc}</FormDescription>}
             <FormMessage />
           </FormItem>
         );

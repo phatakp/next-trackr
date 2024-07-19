@@ -1,15 +1,29 @@
+"use server";
+
 import { siteConfig } from "@/lib/site-config";
-import { publicProcedure } from "@/lib/zsa";
+import { createClient } from "@/lib/supabase/server";
+import { AcctType } from "@/types";
 
-export const getBankForCashAcct = publicProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase
-      .from("banks")
-      .select("id")
-      .eq("name", siteConfig.cashBankName)
-      .single();
+export async function getBankForCashAcct() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("banks")
+    .select("id")
+    .eq("name", siteConfig.cashBankName)
+    .single();
 
-    if (error) throw error.message;
-    return data?.id;
-  });
+  return { data: data?.id, error: null };
+}
+
+export async function getBankOptions(type: AcctType) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("banks")
+    .select("id,name")
+    .eq("type", type);
+  return (
+    data
+      ?.filter((d) => d.name !== siteConfig.cashBankName)
+      .map((d) => ({ label: d.name, value: d.id })) ?? []
+  );
+}

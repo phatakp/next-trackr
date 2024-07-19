@@ -1,24 +1,23 @@
-import { protectedProcedure } from "@/lib/zsa";
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
 import {
   checkCashAcctExistsForUser,
   createCashAcctForUser,
 } from "./accounts.actions";
 import { getBankForCashAcct } from "./banks.actions";
 
-export const syncUser = protectedProcedure
-  .createServerAction()
-  .handler(async ({ ctx }) => {
-    // Get Bank ID for Cash
-    const [bankId, error] = await getBankForCashAcct();
-    if (error) throw error.message;
-    if (!bankId) throw "Bank not found";
+export async function syncUser() {
+  const supabase = await createClient();
+  // Get Bank ID for Cash
+  const { data: bankId, error } = await getBankForCashAcct();
+  if (!bankId) return { error: error ?? "Bank not found" };
 
-    //Check Cash Account exists for user
-    const [acct, err] = await checkCashAcctExistsForUser(bankId);
-    if (err) throw err.message;
+  //Check Cash Account exists for user
+  const { data: acct } = await checkCashAcctExistsForUser(bankId);
 
-    if (!acct) {
-      const [, error] = await createCashAcctForUser(bankId);
-      if (error) throw error.message;
-    }
-  });
+  if (!acct) {
+    const { error } = await createCashAcctForUser(bankId);
+    if (error) throw new Error(error);
+  }
+}
