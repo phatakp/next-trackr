@@ -37,6 +37,7 @@ const FormSelect: FC<FormSelectProps> = ({
   name,
   label,
   desc,
+  value,
   className,
   options,
   disabled,
@@ -56,9 +57,8 @@ const FormSelect: FC<FormSelectProps> = ({
       control={control}
       name={name!}
       render={({ field }) => (
-        <FormItem className="flex flex-col">
+        <FormItem className={cn("flex flex-col", className)}>
           <div className="group relative z-0 w-full">
-            {/* <FormLabel>{label}</FormLabel> */}
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -73,8 +73,8 @@ const FormSelect: FC<FormSelectProps> = ({
                       error && "border-destructive"
                     )}
                   >
-                    {field.value
-                      ? options.find((opt) => opt.value === field.value)?.label
+                    {value
+                      ? options.find((opt) => opt.value === value)?.label
                       : `Select ${label}...`}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -99,9 +99,7 @@ const FormSelect: FC<FormSelectProps> = ({
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              opt.value === field.value
-                                ? "opacity-100"
-                                : "opacity-0"
+                              opt.value === value ? "opacity-100" : "opacity-0"
                             )}
                           />
                           {opt.label}

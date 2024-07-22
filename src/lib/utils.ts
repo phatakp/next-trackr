@@ -1,3 +1,4 @@
+import { FullTxn } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -54,4 +55,12 @@ export function masked_acct(value: string | undefined) {
   if (!value) return value;
   const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
   return "XXXX-" + v.slice(-4);
+}
+
+export function groupedByDate(data: FullTxn[]) {
+  return data.reduce((x: { [key: string]: FullTxn[] }, y) => {
+    (x[y.date] = x[y.date as any] || []).push(y);
+
+    return x;
+  }, {});
 }

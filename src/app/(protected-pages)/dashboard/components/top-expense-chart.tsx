@@ -46,7 +46,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function AcctSummaryChart() {
+export default function TopExpenseChart() {
   const { data, isLoading } = useQuery({
     queryKey: ["acct-stats"],
     queryFn: () => getAcctStats(),
@@ -60,8 +60,8 @@ export default function AcctSummaryChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Accounts-Summary</CardTitle>
-        <CardDescription>Balance in accounts</CardDescription>
+        <CardTitle>Top Expense Categories</CardTitle>
+        <CardDescription>Below are your top spend areas</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -91,7 +91,7 @@ export default function AcctSummaryChart() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
-          Showing total balance by Account Types
+          Showing total expenses by transaction category
         </div>
       </CardFooter>
     </Card>

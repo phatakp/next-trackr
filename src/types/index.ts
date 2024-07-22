@@ -17,6 +17,7 @@ export type EquityAccount =
   Database["public"]["Tables"]["equity_accounts"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
+export type Recurring = Database["public"]["Tables"]["recurring_txns"]["Row"];
 export type Group = Database["public"]["Tables"]["groups"]["Row"];
 export type GroupUser = Database["public"]["Tables"]["group_users"]["Row"];
 
@@ -39,4 +40,12 @@ export type FullAccount = Account & {
   bank: Bank;
   mf: MFAccount | null;
   equity: EquityAccount | null;
+};
+
+export type FullTxn = Transaction & {
+  category: Category;
+  src: Account | null;
+  dest: Account | null;
+  group: Group | null;
+  recurring: Recurring | null;
 };

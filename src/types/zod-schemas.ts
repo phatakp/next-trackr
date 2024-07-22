@@ -99,3 +99,83 @@ export const UpdAccountFormSchema = NewAccountFormParams.extend({
       path: ["units"],
     });
 });
+
+export const NewTxnFormParams = z.object({
+  date: z.string({ required_error: "Date is required" }),
+  amount: z.coerce
+    .number({
+      invalid_type_error: "Amount is required",
+    })
+    .positive("Should be more than 0"),
+  description: z.string().optional(),
+  type: z.enum(siteConfig.txnTypes),
+  category_id: z.coerce.number({
+    invalid_type_error: "Required",
+  }),
+  source_id: z.coerce.number().optional(),
+  destination_id: z.coerce.number().optional(),
+  group_id: z.coerce.number().optional(),
+  //Recurring Fields
+  is_recurring: z.boolean().optional(),
+  frequency: z.enum(siteConfig.frequency).optional(),
+  start_date: z.coerce.string().optional(),
+  end_date: z.coerce.string().optional(),
+});
+
+export const NewTxnFormSchema = NewTxnFormParams.superRefine(
+  (data, context) => {
+    if (data.type !== "income" && !data.source_id)
+      return context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["source_id"],
+      });
+    if (data.type !== "expense" && !data.destination_id)
+      return context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["destination_id"],
+      });
+    if (data.is_recurring && !data.start_date)
+      return context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["start_date"],
+      });
+    if (data.is_recurring && !data.frequency)
+      return context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Required",
+        path: ["frequency"],
+      });
+  }
+);
+
+export const UpdTxnFormSchema = NewTxnFormParams.extend({
+  id: z.coerce.number(),
+}).superRefine((data, context) => {
+  if (data.type !== "income" && !data.source_id)
+    return context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Required",
+      path: ["source_id"],
+    });
+  if (data.type !== "expense" && !data.destination_id)
+    return context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Required",
+      path: ["destination_id"],
+    });
+  if (data.is_recurring && !data.start_date)
+    return context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Required",
+      path: ["start_date"],
+    });
+  if (data.is_recurring && !data.frequency)
+    return context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Required",
+      path: ["frequency"],
+    });
+});

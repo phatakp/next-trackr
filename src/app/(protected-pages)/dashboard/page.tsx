@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { getAcctStats } from "@/server/accounts.actions";
-import AcctSummaryChart from "./components/acct-summary-chart";
+import AcctBalanceChart from "./components/acct-balance-chart";
 import ExpenseSavingsChart from "./components/expense-savings-chart";
-import { TopExpenseCategoryChart } from "./components/top-expenses-chart";
+import TopExpenseChart from "./components/top-expense-chart";
 
 export default async function DashboardPage() {
   const resp = await getAcctStats();
@@ -309,8 +309,8 @@ export default async function DashboardPage() {
         </Tabs> */}
       </div>
       <div className="grid gap-4">
-        <TopExpenseCategoryChart />
-        <AcctSummaryChart />
+        <AcctBalanceChart />
+        <TopExpenseChart />
         {/* <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
           <CardHeader className="flex flex-row items-start bg-muted/50">
             <div className="grid gap-0.5">

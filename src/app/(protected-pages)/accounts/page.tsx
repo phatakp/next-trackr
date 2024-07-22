@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 
 import { AmountField } from "@/components/common/amt-field";
+import PaginationWrapper from "@/components/common/pagination-wrapper";
 import { amountFormatter } from "@/lib/utils";
 import { getAcctStats, getUserAccts } from "@/server/accounts.actions";
 import type { AcctType } from "@/types";
@@ -21,11 +22,12 @@ import AcctTypeRightNavBtn from "./components/acct-type-nav-right-btn";
 import AddAcctBtn from "./components/add-acct-btn";
 
 type Props = {
-  searchParams?: { type: string };
+  searchParams?: { type: string; invType?: string };
 };
 
 export default async function AccountsPage({ searchParams }: Props) {
   const type = searchParams?.type ?? "savings";
+  const invType = searchParams?.invType;
 
   const resp = await getAcctStats();
   if (resp?.error || !resp.data) throw new Error("Error getting account stats");
@@ -35,14 +37,16 @@ export default async function AccountsPage({ searchParams }: Props) {
   const resp2 = await getUserAccts(type as AcctType);
   if (resp2?.error || !resp2.data)
     throw new Error("Error getting user accounts");
-  const accounts = resp2.data;
+  let accounts = resp2.data;
+
+  if (invType) accounts = accounts?.filter((acct) => acct.inv_type === invType);
 
   return (
     <main className="grid flex-1 items-start gap-4 md:gap-8">
       <div className="mx-auto grid flex-1 auto-rows-max gap-4">
         <div className="flex items-center gap-4">
           <AcctTypeLeftNavBtn currType={type as AcctType} />
-          <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0 capitalize">
+          <h1 className="shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0 capitalize">
             {type}
           </h1>
           <AcctTypeRightNavBtn currType={type as AcctType} />
@@ -80,8 +84,9 @@ export default async function AccountsPage({ searchParams }: Props) {
                 </p>
               </CardContent>
             </Card>
-
-            <AcctList accounts={accounts ?? []} type={type as AcctType} />
+            <PaginationWrapper dataLength={accounts.length}>
+              <AcctList accounts={accounts ?? []} type={type as AcctType} />
+            </PaginationWrapper>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

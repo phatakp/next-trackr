@@ -32,11 +32,11 @@ export default function AcctListItem({ acct }: { acct: FullAccount }) {
                 ? acct.number
                 : masked_acct(acct.number)}
             </span>
-            <span className="text-sm text-muted-foreground inline truncate max-w-[100px] sm:w-full">
+            <span className="text-sm text-muted-foreground dark:text-primary-foreground/70 inline truncate max-w-[100px] sm:w-full">
               {acct.name}
             </span>
           </div>
-          <AmountField amount={acct.curr_value} className="text-base" icon />
+          <AmountField amount={acct.curr_value} className="text-base" />
         </AccordionTrigger>
         <AccordionContent>
           <Card>

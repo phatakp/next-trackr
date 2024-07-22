@@ -18,50 +18,59 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { category: "chrome", amount: 275, fill: "var(--color-chrome)" },
-  { category: "safari", amount: 200, fill: "var(--color-safari)" },
-  { category: "firefox", amount: 287, fill: "var(--color-firefox)" },
-  { category: "edge", amount: 173, fill: "var(--color-edge)" },
-  { category: "other", amount: 190, fill: "var(--color-other)" },
-];
+import { capitalize, shortAmount } from "@/lib/utils";
+import { getAcctStats } from "@/server/accounts.actions";
+import { useQuery } from "@tanstack/react-query";
 
 const chartConfig = {
-  amount: {
-    label: "Total Amount",
+  balance: {
+    label: "Balance",
   },
-  chrome: {
-    label: "Chrome",
+  Savings: {
+    label: "Savings",
     color: "hsl(var(--chart-1))",
   },
-  safari: {
-    label: "Safari",
+  "Credit-card": {
+    label: "Credit-Card",
     color: "hsl(var(--chart-2))",
   },
-  firefox: {
-    label: "Firefox",
+  Wallet: {
+    label: "Wallet",
     color: "hsl(var(--chart-3))",
   },
-  edge: {
-    label: "Edge",
+  Investment: {
+    label: "Investment",
     color: "hsl(var(--chart-4))",
   },
-  other: {
-    label: "Other",
+  Mortgage: {
+    label: "Mortgage",
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
 
-export function TopExpenseCategoryChart() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.amount, 0);
-  }, []);
+export default function AcctBalanceChart() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["acct-stats"],
+    queryFn: () => getAcctStats(),
+  });
+
+  const chartData = data?.data.stats.map((s, i) => ({
+    types: capitalize(s.type),
+    balance: s.tot_value,
+    fill: `hsl(var(--chart-${i + 1}))`,
+  }));
+
+  const assets = React.useMemo(() => {
+    return chartData
+      ?.filter((a) => !["Mortgage", "Credit-card"].includes(a.types))
+      .reduce((acc, curr) => acc + curr.balance, 0);
+  }, [chartData]);
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Top Expense Categories</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Accounts-Summary</CardTitle>
+        <CardDescription>Balance in accounts</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -75,8 +84,8 @@ export function TopExpenseCategoryChart() {
             />
             <Pie
               data={chartData}
-              dataKey="amount"
-              nameKey="category"
+              dataKey="balance"
+              nameKey="types"
               innerRadius={60}
               strokeWidth={5}
             >
@@ -95,14 +104,14 @@ export function TopExpenseCategoryChart() {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {shortAmount(assets ?? 0)}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Assets
                         </tspan>
                       </text>
                     );
@@ -118,7 +127,7 @@ export function TopExpenseCategoryChart() {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total amount for the last 6 months
+          Showing total balances by account types
         </div>
       </CardFooter>
     </Card>

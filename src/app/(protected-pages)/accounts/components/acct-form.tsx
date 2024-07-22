@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/ui/custom/form-input";
 import FormSelect from "@/components/ui/custom/form-select";
+import { useModalContext } from "@/components/ui/custom/modal-wrapper";
 import { Form } from "@/components/ui/form";
 import { acct_number_format, amountFormatter, cn } from "@/lib/utils";
 import {
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export default function AcctForm({ type, invType, acct }: Props) {
+  const { closeModal } = useModalContext();
   const router = useRouter();
   const form = useForm<z.infer<typeof NewAccountFormSchema>>({
     resolver: zodResolver(NewAccountFormSchema),
@@ -98,6 +100,7 @@ export default function AcctForm({ type, invType, acct }: Props) {
   const { mutateAsync: updateAcctAction, status: updateStatus } = useMutation({
     mutationFn: updateAcct,
     onError: (err) => toast.error(err.message),
+    onSuccess: () => closeModal(),
   });
 
   useEffect(() => {
@@ -129,7 +132,6 @@ export default function AcctForm({ type, invType, acct }: Props) {
     if (error) toast.error(error);
     else {
       toast.success(`Account ${!acct ? "created" : "updated"} successfully`);
-      router.back();
     }
   }
 

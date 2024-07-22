@@ -121,6 +121,16 @@ export async function getMFData(code: string) {
   return { data, error: null };
 }
 
+export async function getAccountBalance(id: number) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("accounts")
+    .select("curr_value")
+    .eq("id", id)
+    .single();
+  return data?.curr_value ?? 0;
+}
+
 // Mutations
 export async function createCashAcctForUser(bankId: number) {
   if (!bankId) return { error: "Invalid Input", data: null };

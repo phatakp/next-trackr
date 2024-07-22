@@ -325,7 +325,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      credit_acct: {
+        Args: {
+          id_: number
+          amt: number
+        }
+        Returns: undefined
+      }
+      debit_acct: {
+        Args: {
+          id_: number
+          amt: number
+        }
+        Returns: undefined
+      }
+      delete_transactions: {
+        Args: {
+          id_: number
+        }
+        Returns: number
+      }
       get_account_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_user_transactions: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
@@ -349,6 +373,24 @@ export type Database = {
         }
         Returns: number
       }
+      insert_into_transactions: {
+        Args: {
+          date: string
+          amount: number
+          category_id: number
+          type: string
+          description?: string
+          source_id?: number
+          destination_id?: number
+          group_id?: number
+          is_recurring?: boolean
+          end_date?: string
+          frequency?: string
+          last_txn_date?: string
+          start_date?: string
+        }
+        Returns: number
+      }
       update_accounts: {
         Args: {
           id_: number
@@ -360,6 +402,19 @@ export type Database = {
           qty?: number
           units_?: number
           nav_?: number
+        }
+        Returns: number
+      }
+      update_transactions: {
+        Args: {
+          id_: number
+          dt: string
+          amt: number
+          catid: number
+          descr?: string
+          srcid?: number
+          destid?: number
+          grpid?: number
         }
         Returns: number
       }

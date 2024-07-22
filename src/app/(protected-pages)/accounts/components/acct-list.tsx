@@ -1,3 +1,5 @@
+"use client";
+import { usePagination } from "@/components/common/pagination-wrapper";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,8 +12,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AcctType, FullAccount } from "@/types";
 import { PlusCircle } from "lucide-react";
+import Link from "next/link";
 import AcctListItem from "./acct-list-item";
 import AddAcctBtn from "./add-acct-btn";
+import EmptyAcctList from "./empty-acct-list";
 
 type Props = {
   accounts: FullAccount[];
@@ -19,28 +23,9 @@ type Props = {
 };
 
 export default function AcctList({ accounts, type }: Props) {
-  if (accounts.length === 0)
-    return (
-      <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm min-h-[400px] container">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <h3 className="text-2xl font-bold tracking-tight">
-            You have no {type} accounts
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            You can start tracking as soon as you add one.
-          </p>
-          <AddAcctBtn
-            button={
-              <Button>
-                <PlusCircle className="mr-2 size-4" />
-                Add Account
-              </Button>
-            }
-            type={type as AcctType}
-          />
-        </div>
-      </div>
-    );
+  const { start, end } = usePagination();
+  const pageData = accounts.slice(start, end);
+  if (accounts.length === 0) return <EmptyAcctList type={type} />;
 
   return (
     <Card>
@@ -49,34 +34,51 @@ export default function AcctList({ accounts, type }: Props) {
         <CardDescription>You have {accounts.length} accounts</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={accounts[0].inv_type as string} className="w-full">
-          <TabsList>
-            <TabsTrigger value="equity">Equity</TabsTrigger>
-            <TabsTrigger value="fund">Mutual Fund</TabsTrigger>
-            <TabsTrigger value="fd">FD</TabsTrigger>
-          </TabsList>
-          <TabsContent value="equity">
-            {accounts
-              ?.filter((acct) => acct.inv_type === "equity")
-              .map((acct) => (
+        {type !== "investment" && (
+          <div className="grid">
+            <div className="flex items-center justify-between px-4 w-full border-b-2 pb-2">
+              <span>Account</span>
+              <span>Balance</span>
+            </div>
+
+            {pageData.map((acct) => (
+              <AcctListItem key={acct.id} acct={acct} />
+            ))}
+          </div>
+        )}
+        {type === "investment" && (
+          <Tabs
+            defaultValue={accounts[0].inv_type as string}
+            className="w-full"
+          >
+            <TabsList>
+              <Link href={"/accounts?type=investment&invType=equity"}>
+                <TabsTrigger value="equity">Equity</TabsTrigger>
+              </Link>
+              <Link href={"/accounts?type=investment&invType=fund"}>
+                <TabsTrigger value="fund">Mutual Fund</TabsTrigger>
+              </Link>
+              <Link href={"/accounts?type=investment&invType=fd"}>
+                <TabsTrigger value="fd">FD</TabsTrigger>
+              </Link>
+            </TabsList>
+            <TabsContent value="equity">
+              {pageData.map((acct) => (
                 <AcctListItem key={acct.id} acct={acct} />
               ))}
-          </TabsContent>
-          <TabsContent value="fund">
-            {accounts
-              ?.filter((acct) => acct.inv_type === "fund")
-              .map((acct) => (
+            </TabsContent>
+            <TabsContent value="fund">
+              {pageData.map((acct) => (
                 <AcctListItem key={acct.id} acct={acct} />
               ))}
-          </TabsContent>
-          <TabsContent value="fd">
-            {accounts
-              ?.filter((acct) => acct.inv_type === "fd")
-              .map((acct) => (
+            </TabsContent>
+            <TabsContent value="fd">
+              {pageData.map((acct) => (
                 <AcctListItem key={acct.id} acct={acct} />
               ))}
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        )}
       </CardContent>
       <CardFooter className="justify-center border-t p-4">
         <AddAcctBtn
