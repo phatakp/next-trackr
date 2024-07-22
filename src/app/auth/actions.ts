@@ -18,24 +18,24 @@ const getURL = () => {
 export async function loginWithPassword(input: Zod.infer<typeof LoginSchema>) {
   const supabase = await createClient();
   const { success } = LoginSchema.safeParse(input);
-  if (!success) return { error: "Invalid Input" };
+  if (!success) return { error: "Invalid Input", data: null };
   const { data, error } = await supabase.auth.signInWithPassword(input);
-  if (error) return { error: error.message };
-  return data;
+  if (error) return { error: error.message, data: null };
+  return { data, error: null };
 }
 
 export async function register(input: Zod.infer<typeof RegisterSchema>) {
   const supabase = await createClient();
   const { data, success } = RegisterSchema.safeParse(input);
-  if (!success) return { error: "Invalid Input" };
+  if (!success) return { error: "Invalid Input", data: null };
   const { error } = await supabase.auth.signUp({
     ...input,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
     },
   });
-  if (error) return { error: error.message };
-  return data;
+  if (error) return { error: error.message, data: null };
+  return { data, error: null };
 }
 
 export async function loginWithGoogle() {

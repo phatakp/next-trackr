@@ -22,7 +22,7 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
     const resp = await loginWithPassword(values);
-    if (resp?.serverError) toast.error(resp.serverError);
+    if (resp?.error) toast.error(resp.error);
     else {
       toast.success("Login successful!");
       router.replace("/dashboard");
