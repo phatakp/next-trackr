@@ -1,4 +1,4 @@
-import { FullTxn } from "@/types";
+import { AcctStat, FullTxn } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -80,4 +80,16 @@ export function groupedByDate(data: FullTxn[]) {
 
     return x;
   }, {});
+}
+
+export function getTotalAssets(stats: AcctStat[]) {
+  return stats
+    .filter((s) => s.is_asset)
+    .reduce((acc, b) => acc + b.tot_value, 0);
+}
+
+export function getTotalLiabilities(stats: AcctStat[]) {
+  return stats
+    .filter((s) => !s.is_asset)
+    .reduce((acc, b) => acc + b.tot_value, 0);
 }

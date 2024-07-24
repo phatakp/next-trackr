@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { siteConfig } from "@/lib/site-config";
-import { Menu, Package2 } from "lucide-react";
+import { IndentIncrease, Package2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -14,12 +14,12 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-          <Menu className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="shrink-0 md:hidden">
+          <IndentIncrease className="size-7" />
           <span className="sr-only">Toggle navigation menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left">
+      <SheetContent side="left" className="z-[100]">
         <nav className="grid gap-6 text-lg font-medium">
           <Link
             href="/"

@@ -31,7 +31,7 @@ type Props = {
 };
 
 export default function AcctForm({ type, invType, acct }: Props) {
-  const { closeModal } = useModalContext();
+  const { setModalOpen } = useModalContext();
   const router = useRouter();
   const form = useForm<z.infer<typeof NewAccountFormSchema>>({
     resolver: zodResolver(NewAccountFormSchema),
@@ -100,7 +100,7 @@ export default function AcctForm({ type, invType, acct }: Props) {
   const { mutateAsync: updateAcctAction, status: updateStatus } = useMutation({
     mutationFn: updateAcct,
     onError: (err) => toast.error(err.message),
-    onSuccess: () => closeModal(),
+    onSuccess: () => setModalOpen(false),
   });
 
   useEffect(() => {
@@ -124,14 +124,13 @@ export default function AcctForm({ type, invType, acct }: Props) {
   if (isError) toast.error(error.message);
 
   async function onSubmit(values: z.infer<typeof NewAccountFormSchema>) {
-    console.log(values);
-
     const { error } = !acct
       ? await createAcctAction(values)
       : await updateAcctAction({ ...values, id: acct.id });
     if (error) toast.error(error);
     else {
       toast.success(`Account ${!acct ? "created" : "updated"} successfully`);
+      setModalOpen(false);
     }
   }
 

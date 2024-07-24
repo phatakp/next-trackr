@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = searchParams.get("next") ?? "/dashboard";
   const redirectTo = request.nextUrl.clone();
-  redirectTo.pathname = next;
+  redirectTo.pathname = "/dashboard";
 
   if (token_hash && type) {
     const cookieStore = cookies();

@@ -33,7 +33,19 @@ export type AcctStat = {
   tot_balance: number;
   tot_value: number;
   is_asset: boolean;
-  change: number;
+  returns: number;
+};
+
+export type ExpStat = {
+  category: CategoryType;
+  count: number;
+  tot_amt: number;
+};
+
+export type DateWiseExpStat = {
+  date: string;
+  count: number;
+  tot_amt: number;
 };
 
 export type FullAccount = Account & {

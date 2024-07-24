@@ -21,13 +21,13 @@ type Props = {
 };
 
 export default function TxnDeleteForm({ id }: Props) {
-  const { closeModal } = useModalContext();
+  const { setModalOpen } = useModalContext();
   const { mutateAsync, status } = useMutation({
     mutationFn: deleteTransaction,
     onError: (err) => toast.error(err.message),
     onSuccess: () => {
       toast.success("Transaction Deleted successfully");
-      closeModal();
+      setModalOpen(false);
     },
   });
 

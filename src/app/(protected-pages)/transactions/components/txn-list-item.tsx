@@ -7,8 +7,8 @@ import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 export default function TxnListItem({ txn }: { txn: FullTxn }) {
   return (
-    <div className="grid grid-cols-12 items-center w-full">
-      <div className="flex md:flex-row gap-1 items-center col-span-2">
+    <div className="grid grid-cols-12 items-center w-full gap-1 md:gap-0">
+      <div className="flex md:flex-row gap-1 items-center md:col-span-2">
         <Icon
           name={
             `${
@@ -21,7 +21,7 @@ export default function TxnListItem({ txn }: { txn: FullTxn }) {
         </Badge>
       </div>
 
-      <div className="text-sm text-muted-foreground col-span-7 md:col-span-4 truncate text-left">
+      <div className="text-sm text-muted-foreground group-hover:text-primary-foreground col-span-8 md:col-span-4 truncate text-left">
         {!txn.description ? txn.category.name : txn.description}
       </div>
 

@@ -2,7 +2,7 @@
 
 import { siteConfig } from "@/lib/site-config";
 import { createClient } from "@/lib/supabase/server";
-import type { AcctStat, AcctType, FullAccount } from "@/types";
+import type { AcctStat, FullAccount } from "@/types";
 import {
   NewAccountFormSchema,
   UpdAccountFormSchema,
@@ -33,33 +33,27 @@ export async function checkCashAcctExistsForUser(bankId: number) {
 
 export async function getAcctStats() {
   const supabase = await createClient();
-  const { data } = await supabase.rpc("get_account_stats");
-  const stats = (data as AcctStat[]).map((d) => ({
-    ...d,
-    change: ((d.tot_value - d.tot_balance) / d.tot_balance) * 100,
-  }));
-  const assets = stats
-    .filter((s) => s.is_asset)
-    .reduce((acc, b) => acc + b.tot_value, 0);
-  const liabilities = stats
-    .filter((s) => !s.is_asset)
-    .reduce((acc, b) => acc + b.tot_value, 0);
-  const networth = assets - liabilities;
-  const investment = stats.find((s) => s.type === "investment")?.tot_value ?? 0;
-  const cost = stats.find((s) => s.type === "investment")?.tot_balance ?? 0;
-  const returns = cost > 0 ? ((investment - cost) / cost) * 100 : 0;
+  const { data, error } = await supabase.rpc("get_account_stats");
+  if (error) return { data: null, error: error.message };
+
   return {
-    data: { stats, networth, investment, liabilities, returns },
+    data: (data as AcctStat[]).map((d) => ({
+      ...d,
+      returns:
+        d.tot_balance > 0
+          ? ((d.tot_value - d.tot_balance) / d.tot_balance) * 100
+          : 0,
+    })),
     error: null,
   };
 }
 
-export async function getUserAccts(type?: AcctType) {
+export async function getUserAccts() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", data: null };
+  if (!user) return { error: "Not authenticated", data: [] as FullAccount[] };
 
   const { data } = await supabase
     .from("accounts")
@@ -72,11 +66,7 @@ export async function getUserAccts(type?: AcctType) {
   `
     )
     .eq("user_id", user.id);
-  if (type)
-    return {
-      data: data?.filter((a) => a.type === type) as FullAccount[],
-      error: null,
-    };
+
   return { data: data as FullAccount[], error: null };
 }
 
@@ -132,34 +122,6 @@ export async function getAccountBalance(id: number) {
 }
 
 // Mutations
-export async function createCashAcctForUser(bankId: number) {
-  if (!bankId) return { error: "Invalid Input", data: null };
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated", data: null };
-
-  const { data, error } = await supabase
-    .from("accounts")
-    .insert([
-      {
-        name: siteConfig.cashBankName,
-        number: `XXXX-${siteConfig.cashBankName}`,
-        type: "savings",
-        balance: 0,
-        curr_value: 0,
-        as_of_date: format(new Date(), "yyyy-MM-dd"),
-        bank_id: bankId,
-        user_id: user.id,
-      },
-    ])
-    .select();
-
-  if (error) return { error: error.message, data: null };
-  return { data, error: null };
-}
 
 export async function createAcct(values: z.infer<typeof NewAccountFormSchema>) {
   const { success } = NewAccountFormSchema.safeParse(values);

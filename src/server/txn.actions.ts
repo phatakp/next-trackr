@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { capitalize, groupedByDate } from "@/lib/utils";
-import { FullTxn, TxnType } from "@/types";
+import { DateWiseExpStat, ExpStat, FullTxn, TxnType } from "@/types";
 import { NewTxnFormSchema, UpdTxnFormSchema } from "@/types/zod-schemas";
 import { format } from "date-fns";
 import { revalidatePath } from "next/cache";
@@ -62,6 +62,29 @@ export async function getAcctOptions(sourceId?: number) {
       value: d.id,
     })) ?? []
   );
+}
+
+export async function getExpenseStats() {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_top_expenses");
+
+  return {
+    data: data as ExpStat[],
+    error: null,
+  };
+}
+
+export async function getExpenseVsSavingsStats() {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_datewise_expense_stats");
+
+  return {
+    data: (data as DateWiseExpStat[]).map((d) => ({
+      date: d.date,
+      expenses: d.tot_amt,
+    })),
+    error: null,
+  };
 }
 
 export async function getUserTransactions(type?: TxnType) {
@@ -154,7 +177,9 @@ export async function createTransaction(
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/", "layout");
+  revalidatePath("/transactions");
+  revalidatePath("/accounts");
+  revalidatePath("/dashboard");
   return { data, error: null };
 }
 
@@ -185,7 +210,9 @@ export async function updateTransaction(
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/", "layout");
+  revalidatePath("/transactions");
+  revalidatePath("/accounts");
+  revalidatePath("/dashboard");
   return { data, error: null };
 }
 
@@ -203,6 +230,8 @@ export async function deleteTransaction({ id }: { id: number }) {
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/", "layout");
+  revalidatePath("/transactions");
+  revalidatePath("/accounts");
+  revalidatePath("/dashboard");
   return { data, error: null };
 }

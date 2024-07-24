@@ -43,9 +43,7 @@ export function FormDatePicker({
     formState: { errors, isSubmitting },
   } = useFormContext();
   const error = errors[name!]?.message ?? "";
-  const [date, setDate] = useState<Date>(
-    value ? new Date(value as string) : new Date()
-  );
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -59,14 +57,19 @@ export function FormDatePicker({
               <FormControl>
                 <div className="relative z-0 w-full group">
                   <Button
+                    type="button"
                     variant={"outline"}
                     disabled={disabled || isLoading}
                     className={cn(
                       "w-full pl-3 text-left font-normal h-10 peer",
-                      !date && "text-muted-foreground"
+                      !value && "text-muted-foreground"
                     )}
                   >
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    {value ? (
+                      format(new Date(value as string), "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                   <FormLabel
@@ -85,10 +88,12 @@ export function FormDatePicker({
             <PopoverContent className="w-auto p-0 z-[99]" align="start">
               <Calendar
                 mode="single"
-                selected={date}
+                selected={field.value}
                 onSelect={(val) => {
-                  setDate(val ?? new Date());
-                  setValue(name!, format(val ?? new Date(), "yyyy-MM-dd"));
+                  if (val) {
+                    field.onChange(format(val, "yyyy-MM-dd"));
+                    // setValue(name!, format(val, "yyyy-MM-dd"));
+                  }
                   setOpen(false);
                 }}
                 disabled={(date) =>

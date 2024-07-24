@@ -5,7 +5,6 @@ import {
   ArrowRightFromLine,
   ArrowRightLeft,
   ListFilter,
-  PlusCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FullTxn } from "@/types";
 import { format } from "date-fns";
-import AddTxnBtn from "./add-txn-btn";
 import EditTxnBtn from "./edit-txn-btn";
 import TxnListItem from "./txn-list-item";
 
@@ -83,17 +81,6 @@ export default function TxnList({ txns }: Props) {
               <DropdownMenuCheckboxItem>Archived</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <AddTxnBtn
-            button={
-              <Button size={"sm"}>
-                <PlusCircle className="size-4 sm:mr-2" />
-                <span className="sr-only sm:not-sr-only whitespace-nowrap">
-                  Add Txn
-                </span>
-              </Button>
-            }
-          />
         </div>
       </div>
       <TabsContent value="all">
@@ -108,23 +95,19 @@ export default function TxnList({ txns }: Props) {
             {dates &&
               dates.map((dt) => (
                 <div key={dt} className="grid my-4">
-                  <div className="text-lg uppercase bg-muted text-muted-foreground px-4 py-2 my-4">
+                  <div className="uppercase bg-muted text-muted-foreground px-4 py-2 my-4">
                     {format(new Date(dt), "PPP")}
                   </div>
                   {txns[dt]?.map((txn) => (
-                    <EditTxnBtn
-                      key={txn.id}
-                      button={
-                        <Button
-                          variant={"ghost"}
-                          size={"lg"}
-                          className="w-full px-1 py-2 hover:bg-primary hover:text-primary-foreground"
-                        >
-                          <TxnListItem txn={txn} />
-                        </Button>
-                      }
-                      txn={txn}
-                    />
+                    <EditTxnBtn key={txn.id} txn={txn}>
+                      <Button
+                        variant={"ghost"}
+                        size={"lg"}
+                        className="w-full px-1 py-2 hover:bg-primary hover:text-primary-foreground group"
+                      >
+                        <TxnListItem txn={txn} />
+                      </Button>
+                    </EditTxnBtn>
                   ))}
                 </div>
               ))}

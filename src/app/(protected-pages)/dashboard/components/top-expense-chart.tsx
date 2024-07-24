@@ -17,53 +17,62 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { capitalize } from "@/lib/utils";
-import { getAcctStats } from "@/server/accounts.actions";
+import { getExpenseStats } from "@/server/txn.actions";
 import { useQuery } from "@tanstack/react-query";
 
 const chartConfig = {
-  balance: {
-    label: "Balance",
+  expense: {
+    label: "Tot Expense",
   },
-  Savings: {
-    label: "Savings",
+  Food: {
+    label: "Food",
     color: "hsl(var(--chart-1))",
   },
-  "Credit-card": {
-    label: "Credit-Card",
-    color: "hsl(var(--chart-2))",
+  Health: {
+    label: "Health",
+    color: "hsl(var(--chart-1))",
   },
-  Wallet: {
-    label: "Wallet",
-    color: "hsl(var(--chart-3))",
+  Household: {
+    label: "Household",
+    color: "hsl(var(--chart-1))",
   },
-  Investment: {
-    label: "Investment",
-    color: "hsl(var(--chart-4))",
+  Miscellaneous: {
+    label: "Misc",
+    color: "hsl(var(--chart-1))",
   },
-  Mortgage: {
-    label: "Mortgage",
-    color: "hsl(var(--chart-5))",
+  Personal: {
+    label: "Personal",
+    color: "hsl(var(--chart-1))",
+  },
+  Transportation: {
+    label: "Travel",
+    color: "hsl(var(--chart-1))",
+  },
+  Utilities: {
+    label: "Utilities",
+    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig;
 
 export default function TopExpenseChart() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["acct-stats"],
-    queryFn: () => getAcctStats(),
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["exp-stats"],
+    queryFn: () => getExpenseStats(),
+    refetchOnMount: true,
   });
-  const chartData = data?.data.stats.map((s, i) => ({
-    types: capitalize(s.type),
-    balance: s.tot_value,
+  const chartData = stats?.data.slice(0, 5).map((s, i) => ({
+    category: capitalize(s.category),
+    expense: s.tot_amt,
     fill: `hsl(var(--chart-${i + 1}))`,
   }));
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex flex-col">
+      <CardHeader className="items-center pb-0 text-center">
         <CardTitle>Top Expense Categories</CardTitle>
         <CardDescription>Below are your top spend areas</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 pt-4">
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
@@ -74,7 +83,7 @@ export default function TopExpenseChart() {
             }}
           >
             <YAxis
-              dataKey="types"
+              dataKey="category"
               type="category"
               tickLine={false}
               tickMargin={1}
@@ -83,13 +92,13 @@ export default function TopExpenseChart() {
                 chartConfig[value as keyof typeof chartConfig]?.label
               }
             />
-            <XAxis dataKey="balance" type="number" hide />
+            <XAxis dataKey="expense" type="number" hide />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar dataKey="balance" layout="vertical" radius={5} />
+            <Bar dataKey="expense" layout="vertical" radius={5} />
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
+      <CardFooter className="flex-col gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
           Showing total expenses by transaction category
         </div>

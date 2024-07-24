@@ -48,13 +48,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function AcctBalanceChart() {
-  const { data, isLoading } = useQuery({
+export default function AcctSummaryChart() {
+  const { data: stats, isLoading } = useQuery({
     queryKey: ["acct-stats"],
     queryFn: () => getAcctStats(),
+    refetchOnMount: true,
   });
 
-  const chartData = data?.data.stats.map((s, i) => ({
+  const chartData = stats?.data?.map((s, i) => ({
     types: capitalize(s.type),
     balance: s.tot_value,
     fill: `hsl(var(--chart-${i + 1}))`,
@@ -69,7 +70,7 @@ export default function AcctBalanceChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Accounts-Summary</CardTitle>
+        <CardTitle>Account Summary</CardTitle>
         <CardDescription>Balance in accounts</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">

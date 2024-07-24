@@ -1,3 +1,5 @@
+"use client";
+
 import { AmountField } from "@/components/common/amt-field";
 import {
   Accordion,
@@ -6,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,7 +19,7 @@ import {
 import { siteConfig } from "@/lib/site-config";
 import { capitalize, masked_acct } from "@/lib/utils";
 import { FullAccount } from "@/types";
-import { CircleChevronUp } from "lucide-react";
+import { CircleChevronUp, Edit2 } from "lucide-react";
 import AcctDeleteForm from "./acct-delete-form";
 import EditAcctBtn from "./edit-acct-btn";
 
@@ -133,7 +136,11 @@ export default function AcctListItem({ acct }: { acct: FullAccount }) {
               )}
 
               <div className="flex items-center justify-end">
-                <EditAcctBtn acct={acct} />
+                <EditAcctBtn acct={acct}>
+                  <Button variant={"link"} className="group">
+                    <Edit2 className="size-4 text-muted-foreground group-hover:opacity-85" />
+                  </Button>
+                </EditAcctBtn>
                 <AcctDeleteForm id={acct.id} name={acct.name} />
               </div>
             </CardContent>

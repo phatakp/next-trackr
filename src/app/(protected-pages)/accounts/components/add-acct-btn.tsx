@@ -1,4 +1,8 @@
-import ModalWrapper from "@/components/ui/custom/modal-wrapper";
+import {
+  ModalButton,
+  ModalContent,
+  ModalWrapper,
+} from "@/components/ui/custom/modal-wrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AcctType, InvestmentType } from "@/types";
 import { ReactNode } from "react";
@@ -6,35 +10,45 @@ import InvestmentFormWrapper from "./investment-form-wrapper";
 import NonInvestmentFormWrapper from "./non-investment-form-wrapper";
 
 type Props = {
-  button: ReactNode;
+  children: ReactNode;
   type?: AcctType;
   invType?: InvestmentType;
+  className?: string;
 };
 
-export default function AddAcctBtn({ button, type, invType }: Props) {
+export default function AddAcctBtn({
+  className,
+  children,
+  type,
+  invType,
+}: Props) {
   return (
-    <ModalWrapper
-      title="Add New Account"
-      description="Enter details for new account"
-      button={button}
-    >
-      <div className="w-full my-4">
-        <Tabs
-          defaultValue={type === "investment" ? "investment" : "non-investment"}
-          className="w-full"
-        >
-          <TabsList>
-            <TabsTrigger value="non-investment">Non Investment</TabsTrigger>
-            <TabsTrigger value="investment">Investment</TabsTrigger>
-          </TabsList>
-          <TabsContent value="non-investment">
-            <NonInvestmentFormWrapper type={type as AcctType} />
-          </TabsContent>
-          <TabsContent value="investment">
-            <InvestmentFormWrapper invType={invType ?? "fund"} />
-          </TabsContent>
-        </Tabs>
-      </div>
+    <ModalWrapper>
+      <ModalButton className={className}>{children}</ModalButton>
+      <ModalContent
+        title="Add New Account"
+        description="Enter details for new account"
+      >
+        <div className="w-full my-4">
+          <Tabs
+            defaultValue={
+              type === "investment" ? "investment" : "non-investment"
+            }
+            className="w-full"
+          >
+            <TabsList>
+              <TabsTrigger value="non-investment">Non Investment</TabsTrigger>
+              <TabsTrigger value="investment">Investment</TabsTrigger>
+            </TabsList>
+            <TabsContent value="non-investment">
+              <NonInvestmentFormWrapper type={type as AcctType} />
+            </TabsContent>
+            <TabsContent value="investment">
+              <InvestmentFormWrapper invType={invType ?? "fund"} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </ModalContent>
     </ModalWrapper>
   );
 }

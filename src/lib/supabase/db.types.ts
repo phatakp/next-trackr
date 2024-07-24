@@ -349,7 +349,11 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_user_transactions: {
+      get_datewise_expense_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_top_expenses: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }

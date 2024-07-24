@@ -16,7 +16,7 @@ export function ProtectedPageHeader() {
   if (isLoading)
     return (
       <>
-        <Skeleton className="mx-auto max-w-3xl py-8 pb-4 text-center text-3xl font-extrabold md:text-5xl lg:leading-[1.1]">
+        <Skeleton className="mx-auto max-w-3xl py-0 gap-0 pb-4 text-center text-3xl font-extrabold md:text-5xl lg:leading-[1.1]">
           #
         </Skeleton>
         <Skeleton className="max-w-[750px] text-center text-lg">#</Skeleton>
@@ -24,7 +24,7 @@ export function ProtectedPageHeader() {
     );
 
   return (
-    <PageHeader className="max-w-3xl">
+    <PageHeader className="max-w-3xl py-0 pb-4 gap-0">
       <PageHeaderHeading className="text-balance capitalize">
         {title}
       </PageHeaderHeading>

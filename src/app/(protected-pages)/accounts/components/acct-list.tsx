@@ -1,5 +1,5 @@
 "use client";
-import { usePagination } from "@/components/common/pagination-wrapper";
+import PaginationWrapper from "@/components/common/pagination-wrapper";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,88 +9,75 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { AcctType, FullAccount } from "@/types";
-import { PlusCircle } from "lucide-react";
-import Link from "next/link";
-import AcctListItem from "./acct-list-item";
+import { cn } from "@/lib/utils";
+import { getUserAccts } from "@/server/accounts.actions";
+import type { AcctType, InvestmentType } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, PlusCircle } from "lucide-react";
+import AcctPagination from "./acct-pagination";
 import AddAcctBtn from "./add-acct-btn";
 import EmptyAcctList from "./empty-acct-list";
+import InvestmentAcctList from "./investment-acct-list";
+import NonInvestmentAcctList from "./non-investment-acct-list";
 
 type Props = {
-  accounts: FullAccount[];
   type: AcctType;
+  invType?: InvestmentType;
 };
 
-export default function AcctList({ accounts, type }: Props) {
-  const { start, end } = usePagination();
-  const pageData = accounts.slice(start, end);
-  if (accounts.length === 0) return <EmptyAcctList type={type} />;
+export default function AcctList({ type, invType }: Props) {
+  const { data: accounts, isLoading } = useQuery({
+    queryKey: ["user-accounts"],
+    queryFn: async () => await getUserAccts(),
+  });
+
+  if (isLoading) return <Loader2 className="animate-spin size-4" />;
+
+  let acctsData = accounts?.data.filter((a) => a.type === type);
+  if (invType) acctsData = acctsData?.filter((a) => a.inv_type === invType);
+  const totalAccts = acctsData?.length ?? 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="capitalize">{type} accounts</CardTitle>
-        <CardDescription>You have {accounts.length} accounts</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {type !== "investment" && (
-          <div className="grid">
-            <div className="flex items-center justify-between px-4 w-full border-b-2 pb-2">
-              <span>Account</span>
-              <span>Balance</span>
-            </div>
+    <PaginationWrapper dataLength={totalAccts}>
+      <Card>
+        <CardHeader className="bg-muted/50 relative">
+          <CardTitle className="capitalize">{type} accounts</CardTitle>
+          <CardDescription>
+            You have {totalAccts} account{totalAccts > 1 && "s"}
+          </CardDescription>
 
-            {pageData.map((acct) => (
-              <AcctListItem key={acct.id} acct={acct} />
-            ))}
-          </div>
-        )}
-        {type === "investment" && (
-          <Tabs
-            defaultValue={accounts[0].inv_type as string}
-            className="w-full"
+          <AddAcctBtn
+            type={type as AcctType}
+            className="absolute top-4 right-4"
           >
-            <TabsList>
-              <Link href={"/accounts?type=investment&invType=equity"}>
-                <TabsTrigger value="equity">Equity</TabsTrigger>
-              </Link>
-              <Link href={"/accounts?type=investment&invType=fund"}>
-                <TabsTrigger value="fund">Mutual Fund</TabsTrigger>
-              </Link>
-              <Link href={"/accounts?type=investment&invType=fd"}>
-                <TabsTrigger value="fd">FD</TabsTrigger>
-              </Link>
-            </TabsList>
-            <TabsContent value="equity">
-              {pageData.map((acct) => (
-                <AcctListItem key={acct.id} acct={acct} />
-              ))}
-            </TabsContent>
-            <TabsContent value="fund">
-              {pageData.map((acct) => (
-                <AcctListItem key={acct.id} acct={acct} />
-              ))}
-            </TabsContent>
-            <TabsContent value="fd">
-              {pageData.map((acct) => (
-                <AcctListItem key={acct.id} acct={acct} />
-              ))}
-            </TabsContent>
-          </Tabs>
-        )}
-      </CardContent>
-      <CardFooter className="justify-center border-t p-4">
-        <AddAcctBtn
-          type={type as AcctType}
-          button={
-            <Button variant={"ghost"} size="sm">
-              <PlusCircle className="mr-2 size-4" />
-              Add Account
+            <Button size="sm">
+              <PlusCircle className="sm:mr-2 size-4" />
+              <span className="sr-only sm:not-sr-only">Add Account</span>
             </Button>
-          }
-        />
-      </CardFooter>
-    </Card>
+          </AddAcctBtn>
+        </CardHeader>
+        <CardContent className="py-4">
+          {type !== "investment" && (
+            <NonInvestmentAcctList accounts={acctsData ?? []} type={type} />
+          )}
+          {type === "investment" && (
+            <InvestmentAcctList
+              accounts={acctsData ?? []}
+              invType={invType ?? acctsData?.[0].inv_type ?? "equity"}
+            />
+          )}
+        </CardContent>
+
+        <CardFooter
+          className={cn("w-full", totalAccts > 0 && "px-4 py-2 bg-muted/50")}
+        >
+          {totalAccts > 0 ? (
+            <AcctPagination />
+          ) : (
+            <EmptyAcctList type={type} invType={invType} />
+          )}
+        </CardFooter>
+      </Card>
+    </PaginationWrapper>
   );
 }

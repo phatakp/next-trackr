@@ -21,6 +21,7 @@ import { FullTxn, TxnType } from "@/types";
 import { NewTxnFormSchema } from "@/types/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,13 +33,13 @@ type Props = {
   txn?: FullTxn;
 };
 export default function TxnForm({ type, txn }: Props) {
-  const { closeModal } = useModalContext();
+  const { setModalOpen } = useModalContext();
   const [srcBalance, setSrcBalance] = useState(0);
 
   const form = useForm<z.infer<typeof NewTxnFormSchema>>({
     resolver: zodResolver(NewTxnFormSchema),
     defaultValues: {
-      date: txn?.date,
+      date: txn?.date ?? format(new Date(), "yyyy-MM-dd"),
       description: txn?.description ?? "",
       amount: txn?.amount ?? 0,
       type,
@@ -113,11 +114,10 @@ export default function TxnForm({ type, txn }: Props) {
   const { mutateAsync: updateTxnAction, status: updateStatus } = useMutation({
     mutationFn: updateTransaction,
     onError: (err) => toast.error(err.message),
-    onSuccess: () => closeModal(),
+    onSuccess: () => setModalOpen(false),
   });
 
   async function onSubmit(values: z.infer<typeof NewTxnFormSchema>) {
-    console.log(values);
     const { error } = !txn
       ? await createTxnAction(values)
       : await updateTxnAction({ ...values, id: txn.id });
@@ -128,9 +128,11 @@ export default function TxnForm({ type, txn }: Props) {
           !txn ? "created" : "updated"
         } successfully`
       );
-      closeModal();
+      setModalOpen(false);
     }
   }
+
+  console.log(formData.date);
 
   if (isGrpLoading)
     return (
@@ -153,7 +155,7 @@ export default function TxnForm({ type, txn }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 my-4">
+      <form className="space-y-8 my-4" id="txn-form" method="POST">
         {/* Group */}
         {grpOptions && grpOptions.length > 0 && (
           <FormSelect
@@ -197,14 +199,18 @@ export default function TxnForm({ type, txn }: Props) {
 
         <div className="grid sm:grid-cols-2 gap-x-4 space-y-8 sm:space-y-0 w-full items-start">
           {type !== "income" && (
-            <div className="grid w-full">
+            <div
+              className={cn(
+                "grid w-full",
+                type === "expense" && "sm:col-span-2"
+              )}
+            >
               <FormSelect
                 name="source_id"
                 label={"Source"}
                 options={srcOptions ?? []}
                 value={formData.source_id}
                 isLoading={isSrcLoading}
-                className={cn(type === "expense" && "sm:col-span-2")}
               />
               <span className={cn("text-sm text-muted-foreground px-4")}>
                 {srcBalance > 0 && (
@@ -227,18 +233,18 @@ export default function TxnForm({ type, txn }: Props) {
             />
           )}
         </div>
-
-        <div className="flex w-full items-center gap-4">
-          {txn && <TxnDeleteForm id={txn.id} />}
-          <Button
-            type="submit"
-            className="w-full"
-            isLoading={createStatus === "pending" || updateStatus === "pending"}
-          >
-            Submit
-          </Button>
-        </div>
       </form>
+      <div className="flex w-full items-center gap-4">
+        {txn && <TxnDeleteForm id={txn.id} />}
+        <Button
+          form="txn-form"
+          onClick={form.handleSubmit(onSubmit)}
+          className="w-full"
+          isLoading={createStatus === "pending" || updateStatus === "pending"}
+        >
+          Submit
+        </Button>
+      </div>
     </Form>
   );
 }

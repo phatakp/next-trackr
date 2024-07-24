@@ -1,15 +1,6 @@
 "use client";
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
   Dispatch,
   ReactNode,
   SetStateAction,
@@ -24,6 +15,11 @@ type PaginationValue = {
   setPage: Dispatch<SetStateAction<number>>;
   start: number;
   end: number;
+  showPrevPage: () => void;
+  showNextPage: () => void;
+  isPaginated: boolean;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
 };
 const PaginationContext = createContext({} as PaginationValue);
 
@@ -42,6 +38,9 @@ export default function PaginationWrapper({
   const totalPages = Math.ceil(dataLength / pageSize);
   const start = (page - 1) * pageSize;
   const end = start + pageSize;
+  const isPaginated = totalPages > 1;
+  const hasPrevPage = page > 1;
+  const hasNextPage = page < totalPages;
 
   const showPrevPage = useCallback(() => {
     if (page > 1) setPage((prev) => prev - 1);
@@ -52,37 +51,20 @@ export default function PaginationWrapper({
   }, [page, totalPages]);
 
   return (
-    <PaginationContext.Provider value={{ page, setPage, start, end }}>
+    <PaginationContext.Provider
+      value={{
+        page,
+        setPage,
+        start,
+        end,
+        showPrevPage,
+        showNextPage,
+        isPaginated,
+        hasPrevPage,
+        hasNextPage,
+      }}
+    >
       {children}
-      {totalPages > 1 && (
-        <Pagination className="mx-auto">
-          <PaginationContent className="w-full justify-end">
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                isActive={page > 1}
-                onClick={showPrevPage}
-              />
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationLink href="#">{page}</PaginationLink>
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                isActive={page < totalPages}
-                onClick={showNextPage}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
     </PaginationContext.Provider>
   );
 }
