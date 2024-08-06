@@ -34,25 +34,26 @@ export default function GrpTxnListItem({ txn }: Props) {
                 <Icon
                     name={
                         `${
-                            txn.category.type
-                        }:${txn.category.name.toLowerCase()}` as keyof typeof mappings
+                            txn?.category?.type
+                        }:${txn.category?.name.toLowerCase()}` as keyof typeof mappings
                     }
                 />
                 <Badge variant="outline" className="hidden md:flex">
-                    {capitalize(txn.category.type)}
+                    {capitalize(txn?.category?.type ?? "")}
                 </Badge>
             </div>
 
             <div className="flex flex-col items-start group-hover:text-primary-foreground col-span-8 md:col-span-4">
                 <span className="text-sm truncate">
-                    {!txn.description ? txn.category.name : txn.description}
+                    {!txn.description ? txn.category?.name : txn.description}
                 </span>
                 <span className="text-xs flex gap-1 items-center text-muted-foreground">
                     {user.first_name} paid{" "}
                     <AmountField
                         amount={txn.amount}
                         full
-                        className="text-xs justify-start"
+                        className="text-sm justify-start"
+                        textClassName="text-xs"
                     />
                 </span>
             </div>

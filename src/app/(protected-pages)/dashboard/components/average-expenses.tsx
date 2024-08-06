@@ -1,14 +1,21 @@
 "use client";
 
 import { AmountField } from "@/components/common/amt-field";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
+
 import {
     Card,
+    CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart";
+import { cn, shortAmount } from "@/lib/utils";
 import { getMonthlyExpenseStats } from "@/server/txn.actions";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -27,13 +34,28 @@ export default function AverageExpenses({ className }: { className?: string }) {
             ? stats.data.reduce((acc, b) => acc + b.expense, 0) /
               stats.data.length
             : 0;
-    const data = stats.data.map((d) => ({ month: d.key, expenses: d.expense }));
+
+    const data = stats.data
+        .reduce(
+            (acc, d) => {
+                const found = acc.find((a) => a.month === d.key);
+                const value = { month: d.key, expenses: d.expense };
+                if (!found) {
+                    acc.push(value);
+                } else {
+                    found.expenses += d.expense;
+                }
+                return acc;
+            },
+            [{ month: "", expenses: 0 }]
+        )
+        .filter((d) => d.expenses > 0);
 
     return (
         <Card className={cn("relative", className)}>
             <CardHeader className="p-4 pb-0">
                 <CardDescription>Average Expenses</CardDescription>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center py-4 gap-2">
                     <AmountField
                         amount={average}
                         full
@@ -45,47 +67,77 @@ export default function AverageExpenses({ className }: { className?: string }) {
                     </span>
                 </CardTitle>
             </CardHeader>
-            <CardFooter className="px-4">
-                <div className="md:absolute md:inset-x-0 md:bottom-4 md:px-4">
-                    This is the average you are spending per month
-                </div>
-                {/* <ChartContainer
+            {/* <CardContent className="flex items-center py-4 gap-2 md:absolute md:inset-x-0 md:bottom-4 md:px-4 md:py-8"> */}
+            <CardContent className="p-0">
+                <ChartContainer
                     config={{
                         expenses: {
-                            label: "Expenses",
-                            color: "hsl(var(--chart-1))",
+                            label: "Expense",
+                            color: "hsl(var(--chart-2))",
                         },
                     }}
-                    className="max-w-sm"
                 >
-                    <BarChart
+                    <AreaChart
                         accessibilityLayer
+                        data={data}
                         margin={{
                             left: 0,
                             right: 0,
                             top: 0,
                             bottom: 0,
                         }}
-                        data={data}
                     >
-                        <Bar
+                        <XAxis dataKey="month" hide />
+                        <YAxis domain={["dataMin - 5", "dataMax + 2"]} hide />
+                        <defs>
+                            <linearGradient
+                                id="fillTime"
+                                x1="0"
+                                y1="0"
+                                x2="0"
+                                y2="1"
+                            >
+                                <stop
+                                    offset="5%"
+                                    stopColor="var(--color-expenses)"
+                                    stopOpacity={0.8}
+                                />
+                                <stop
+                                    offset="95%"
+                                    stopColor="var(--color-expenses)"
+                                    stopOpacity={0.1}
+                                />
+                            </linearGradient>
+                        </defs>
+                        <Area
                             dataKey="expenses"
-                            fill="var(--color-expenses)"
-                            radius={2}
-                            fillOpacity={0.2}
-                            activeIndex={data.length - 1}
-                            activeBar={<Rectangle fillOpacity={0.8} />}
+                            type="natural"
+                            fill="url(#fillTime)"
+                            fillOpacity={0.4}
+                            stroke="var(--color-expenses)"
                         />
-                        <XAxis
-                            dataKey="month"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={4}
-                            hide
+                        <ChartTooltip
+                            cursor={false}
+                            content={
+                                <ChartTooltipContent
+                                    labelFormatter={(val) => val.slice(2)}
+                                />
+                            }
+                            formatter={(value) => (
+                                <div className="flex items-center text-xs text-muted-foreground">
+                                    Expense
+                                    <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                                        {shortAmount(Number(value))}
+                                        <span className="font-normal text-muted-foreground">
+                                            INR
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         />
-                    </BarChart>
-                </ChartContainer> */}
-            </CardFooter>
+                    </AreaChart>
+                </ChartContainer>
+            </CardContent>
         </Card>
     );
 }

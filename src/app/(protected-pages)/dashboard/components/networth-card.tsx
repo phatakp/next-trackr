@@ -40,7 +40,7 @@ export default function NetworthCard({ className }: Props) {
             </CardHeader>
             <CardContent>
                 <div className="flex items-center justify-between gap-4">
-                    <div className="grid gap-1 w-full">
+                    <div className="grid gap-1 w-full md:py-8">
                         <div className="text-xs text-muted-foreground">
                             {`${returns.toFixed()}% of 1Cr target`}
                         </div>
@@ -56,7 +56,7 @@ export default function NetworthCard({ className }: Props) {
                     />
                 </div>
             </CardContent>
-            <CardFooter className="flex flex-row border-t px-2 py-4">
+            <CardFooter className="flex flex-row border-t px-2 py-4 md:absolute md:bottom-0 md:inset-x-0">
                 <div className="flex w-full items-center gap-1">
                     <div className="grid flex-1 auto-rows-min gap-0.5">
                         <div className="text-sm text-muted-foreground ">

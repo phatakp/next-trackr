@@ -37,32 +37,26 @@ export default function ExpenseSummaryChart() {
         refetchOnWindowFocus: true,
     });
 
-    const statsConfig =
-        stats?.data?.reduce(
-            (
-                x: {
-                    [key: string]: {
-                        key: string;
-                        expense: number;
-                        income: number;
-                    }[];
-                },
-                y
-            ) => {
-                (x[y.key] = x[y.key as any] || []).push(y);
-
-                return x;
+    const chartData = stats?.data
+        ?.reduce(
+            (acc, d) => {
+                const found = acc.find((a) => a.month === d.key);
+                const value = {
+                    month: d.key,
+                    expense: d.expense,
+                    income: d.income,
+                };
+                if (!found) {
+                    acc.push(value);
+                } else {
+                    found.expense += d.expense;
+                    found.income += d.income;
+                }
+                return acc;
             },
-            {}
-        ) ?? {};
-
-    const chartData = Object.keys(statsConfig)?.map((key) => ({
-        month: key,
-        expense: statsConfig[key].reduce((acc, b) => acc + b.expense, 0),
-        income: statsConfig[key].reduce((acc, b) => acc + b.income, 0),
-    }));
-
-    console.log(chartData);
+            [{ month: "", expense: 0, income: 0 }]
+        )
+        .filter((d) => d.month !== "");
 
     return (
         <Card className="flex flex-col">
@@ -79,7 +73,7 @@ export default function ExpenseSummaryChart() {
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
-                            tickFormatter={(value) => value.slice(0, 3)}
+                            tickFormatter={(value) => value.slice(2)}
                         />
                         <ChartTooltip
                             cursor={false}

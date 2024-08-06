@@ -1,14 +1,13 @@
-import { ChevronFirst, Euro, IndianRupee, Type } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Logo() {
-  return (
-    <div className="flex flex-nowrap font-normal items-center bg-primary text-primary-foreground rounded-lg p-1 leading-tight tracking-tighter">
-      <Type className="size-5" />
-      <IndianRupee className="size-4" />
-      <span className="text-xl">A</span>
-      <Euro className="size-5" />
-      <ChevronFirst className="size-6" />
-      <span className="text-xl">R</span>
-    </div>
-  );
+    return (
+        <div className="flex items-center">
+            <Avatar className="size-32">
+                <AvatarImage src={"./logo.png"} />
+                <AvatarFallback>Logo</AvatarFallback>
+            </Avatar>
+            <span className="text-4xl font-extrabold sm:hidden">Trackr</span>
+        </div>
+    );
 }

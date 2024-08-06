@@ -27,11 +27,14 @@ export function ProtectedPageHeader() {
         );
 
     return (
-        <PageHeader className="max-w-3xl py-0 pb-4 gap-0">
-            <PageHeaderHeading className="text-balance capitalize">
-                {title}
-            </PageHeaderHeading>
-            <PageHeaderDescription>{username}</PageHeaderDescription>
-        </PageHeader>
+        <div className="h-[8rem] w-full bg-background  dark:bg-dot-white/[0.2] bg-dot-black/[0.2] relative flex items-center justify-center">
+            <div className="absolute pointer-events-none inset-0 flex items-center justify-center  bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+            <PageHeader className="max-w-3xl py-0 pb-4 gap-0 relative z-20">
+                <PageHeaderHeading className="text-balance capitalize title">
+                    {title}
+                </PageHeaderHeading>
+                <PageHeaderDescription>{username}</PageHeaderDescription>
+            </PageHeader>
+        </div>
     );
 }
