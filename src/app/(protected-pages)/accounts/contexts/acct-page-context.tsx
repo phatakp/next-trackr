@@ -22,7 +22,7 @@ export default function AcctPageProvider({
     children,
     accounts,
     stats,
-    type = "savings",
+    type,
     invType,
 }: Props) {
     return (
@@ -37,7 +37,7 @@ export const useAcctPageContext = () => {
     if (!context)
         throw new Error("Acct Page Context should be used within a Provider");
 
-    const { accounts, stats, type, invType } = context;
+    const { accounts, stats, type = "savings", invType } = context;
     const assets = getTotalAssets(stats ?? []);
     const liabilities = getTotalLiabilities(stats ?? []);
     const liquid = getTotalLiquid(stats ?? []);
