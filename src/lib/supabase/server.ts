@@ -29,3 +29,15 @@ export async function createClient() {
     }
   );
 }
+
+export async function getCurrUserName() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return null;
+  const { data: user } = await supabase
+    .from("profiles")
+    .select()
+    .eq("id", data.user.id)
+    .single();
+  return `${user?.first_name} ${user?.last_name}`;
+}

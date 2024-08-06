@@ -6,8 +6,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AcctType, InvestmentType } from "@/types";
 import { ReactNode } from "react";
-import InvestmentFormWrapper from "./investment-form-wrapper";
-import NonInvestmentFormWrapper from "./non-investment-form-wrapper";
+import AcctFormWrapper from "./acct-form-wrapper";
 
 type Props = {
   children: ReactNode;
@@ -41,10 +40,10 @@ export default function AddAcctBtn({
               <TabsTrigger value="investment">Investment</TabsTrigger>
             </TabsList>
             <TabsContent value="non-investment">
-              <NonInvestmentFormWrapper type={type as AcctType} />
+              <AcctFormWrapper type={type as AcctType} />
             </TabsContent>
             <TabsContent value="investment">
-              <InvestmentFormWrapper invType={invType ?? "fund"} />
+              <AcctFormWrapper type="investment" invType={invType ?? "fund"} />
             </TabsContent>
           </Tabs>
         </div>

@@ -14,7 +14,8 @@ export default function SignUpForm() {
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
-      name: "",
+      first_name: "",
+      last_name: "",
       password: "",
       password2: "",
     },
@@ -31,7 +32,10 @@ export default function SignUpForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormInput name="name" label="Name" />
+        <div className="grid grid-cols-2 w-full gap-4">
+          <FormInput name="first_name" label="First Name" />
+          <FormInput name="last_name" label="Last Name" />
+        </div>
         <FormInput name="email" label="Email" type="email" />
         <FormInput name="password" label="Password" type="password" />
         <FormInput name="password2" label="Confirm" type="password" />

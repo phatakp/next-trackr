@@ -60,7 +60,7 @@ export default function TopExpenseChart() {
     queryFn: () => getExpenseStats(),
     refetchOnMount: true,
   });
-  const chartData = stats?.data.slice(0, 5).map((s, i) => ({
+  const chartData = stats?.data?.slice(0, 5).map((s, i) => ({
     category: capitalize(s.category),
     expense: s.tot_amt,
     fill: `hsl(var(--chart-${i + 1}))`,
@@ -98,7 +98,7 @@ export default function TopExpenseChart() {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
+      <CardFooter className="flex-col gap-2 text-sm text-balance text-center">
         <div className="leading-none text-muted-foreground">
           Showing total expenses by transaction category
         </div>

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteAcct } from "@/server/accounts.actions";
+import { AcctType } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,9 +20,10 @@ import { toast } from "sonner";
 type Props = {
   id: number;
   name: string;
+  type: AcctType;
 };
 
-export default function AcctDeleteForm({ id, name }: Props) {
+export default function AcctDeleteForm({ id, name, type }: Props) {
   const { mutateAsync, status } = useMutation({
     mutationFn: deleteAcct,
     onError: (err) => toast.error(err.message),
@@ -46,7 +48,7 @@ export default function AcctDeleteForm({ id, name }: Props) {
         <AlertDialogFooter className="sm:justify-center">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={async () => await mutateAsync({ id, name })}
+            onClick={async () => await mutateAsync({ id, name, type })}
           >
             Continue
           </AlertDialogAction>

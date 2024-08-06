@@ -2,7 +2,7 @@
 
 import { siteConfig } from "@/lib/site-config";
 import { createClient } from "@/lib/supabase/server";
-import type { AcctStat, FullAccount } from "@/types";
+import type { AcctStat, AcctType, FullAccount } from "@/types";
 import {
   NewAccountFormSchema,
   UpdAccountFormSchema,
@@ -35,15 +35,69 @@ export async function getAcctStats() {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_account_stats");
   if (error) return { data: null, error: error.message };
+  const result = [] as AcctStat[];
+  siteConfig.acctTypes.forEach((t) => {
+    const tRec = (data as AcctStat[]).find((x) => x.type === t);
+    if (tRec) {
+      if (t === "investment") {
+        siteConfig.invTypes.forEach((i) => {
+          const iRec = (data as AcctStat[]).find((x) => x.inv_type === i);
+          if (iRec) {
+            result.push({
+              ...iRec,
+              returns:
+                iRec.tot_balance > 0
+                  ? ((iRec.tot_value - iRec.tot_balance) / iRec.tot_balance) *
+                    100
+                  : 0,
+            });
+          } else
+            result.push({
+              type: "investment",
+              inv_type: i,
+              count: 0,
+              tot_balance: 0,
+              tot_value: 0,
+              is_asset: true,
+              returns: 0,
+            });
+        });
+      } else {
+        if (tRec) {
+          result.push({
+            ...tRec,
+            returns:
+              tRec.tot_balance > 0
+                ? ((tRec.tot_value - tRec.tot_balance) / tRec.tot_balance) * 100
+                : 0,
+          });
+        } else {
+          result.push({
+            type: t,
+            inv_type: undefined,
+            count: 0,
+            tot_balance: 0,
+            tot_value: 0,
+            is_asset: ["savings", "wallet"].includes(t),
+            returns: 0,
+          });
+        }
+      }
+    } else {
+      result.push({
+        type: t,
+        inv_type: undefined,
+        count: 0,
+        tot_balance: 0,
+        tot_value: 0,
+        is_asset: ["savings", "wallet"].includes(t),
+        returns: 0,
+      });
+    }
+  });
 
   return {
-    data: (data as AcctStat[]).map((d) => ({
-      ...d,
-      returns:
-        d.tot_balance > 0
-          ? ((d.tot_value - d.tot_balance) / d.tot_balance) * 100
-          : 0,
-    })),
+    data: result,
     error: null,
   };
 }
@@ -148,7 +202,7 @@ export async function createAcct(values: z.infer<typeof NewAccountFormSchema>) {
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/accounts");
+  revalidatePath(`/accounts?type=${values.type}`);
   revalidatePath("/dashboard");
   return { data, error: null };
 }
@@ -190,12 +244,20 @@ export async function updateAcct(values: z.infer<typeof UpdAccountFormSchema>) {
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/accounts");
+  revalidatePath(`/accounts?type=${values.type}`);
   revalidatePath("/dashboard");
   return { data, error: null };
 }
 
-export async function deleteAcct({ id, name }: { id: number; name: string }) {
+export async function deleteAcct({
+  id,
+  name,
+  type,
+}: {
+  id: number;
+  name: string;
+  type: AcctType;
+}) {
   if (name === siteConfig.cashBankName)
     return { error: "Cannot delete Cash Acct", data: null };
 
@@ -209,7 +271,7 @@ export async function deleteAcct({ id, name }: { id: number; name: string }) {
 
   if (error) return { data: null, error: error.message };
 
-  revalidatePath("/accounts");
+  revalidatePath(`/accounts?type=${type}`);
   revalidatePath("/dashboard");
   return { data, error: null };
 }

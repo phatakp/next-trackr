@@ -6,7 +6,8 @@ export const LoginSchema = z.object({
 });
 
 export const RegisterSchema = LoginSchema.extend({
-  name: z.string().min(2),
+  first_name: z.string().min(2),
+  last_name: z.string().min(2),
   password2: z.string().min(8, "Password should have min 8 chars"),
 }).refine((data) => data.password === data.password2, {
   path: ["password2"],

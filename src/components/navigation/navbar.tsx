@@ -2,8 +2,8 @@ import { ThemeToggle } from "@/components/common/theme-toggle";
 import { siteConfig } from "@/lib/site-config";
 
 import { createClient } from "@/lib/supabase/server";
-import { Package2 } from "lucide-react";
 import Link from "next/link";
+import Logo from "../common/logo";
 import UserDropdown from "../common/user-dropdown";
 import { MobileNav } from "./mobile-nav";
 import { NavLink } from "./nav-link";
@@ -23,7 +23,7 @@ export async function Navbar() {
             href="/"
             className="flex items-center gap-2 text-lg font-semibold md:text-base"
           >
-            <Package2 className="h-6 w-6" />
+            <Logo />
             <span className="sr-only">Acme Inc</span>
           </Link>
 

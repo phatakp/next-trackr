@@ -18,7 +18,6 @@ import { NewAccountFormSchema } from "@/types/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,7 +31,7 @@ type Props = {
 
 export default function AcctForm({ type, invType, acct }: Props) {
   const { setModalOpen } = useModalContext();
-  const router = useRouter();
+
   const form = useForm<z.infer<typeof NewAccountFormSchema>>({
     resolver: zodResolver(NewAccountFormSchema),
     defaultValues: {
@@ -54,25 +53,18 @@ export default function AcctForm({ type, invType, acct }: Props) {
   });
 
   const formData = form.watch();
+  const { setValue } = form;
 
   const {
     data: bankOptions,
     isLoading,
     isError,
     error,
-    refetch,
   } = useQuery({
-    queryKey: ["bank-options"],
+    queryKey: ["bank-options", type],
     queryFn: async () => await getBankOptions(type as AcctType),
+    enabled: !acct,
   });
-
-  useEffect(() => {
-    if (!acct) {
-      console.log("running refetch");
-
-      refetch();
-    }
-  }, [refetch, type, acct]);
 
   const { data: fund, isLoading: isFundLoading } = useQuery({
     queryKey: ["mf-data", formData.number],
@@ -105,21 +97,21 @@ export default function AcctForm({ type, invType, acct }: Props) {
 
   useEffect(() => {
     if (formData.inv_type === "fund" && !!fund) {
-      form.setValue("name", fund.data.scheme_name);
-      form.setValue("nav", fund.data.nav);
+      setValue("name", fund.data.scheme_name);
+      setValue("nav", fund.data.nav);
       if (formData.units && formData.units > 0)
-        form.setValue("curr_value", formData.units * fund.data.nav);
+        setValue("curr_value", formData.units * fund.data.nav);
     }
-  }, [form, fund, formData.inv_type, formData.units]);
+  }, [fund, formData.inv_type, formData.units, setValue]);
 
   useEffect(() => {
     if (formData.inv_type === "equity" && !!equity) {
-      form.setValue("name", equity.data.stockName!);
-      form.setValue("curr_price", equity.data.price);
+      setValue("name", equity.data.stockName!);
+      setValue("curr_price", equity.data.price);
       if (formData.quantity && formData.quantity > 0)
-        form.setValue("curr_value", formData.quantity * equity.data.price);
+        setValue("curr_value", formData.quantity * equity.data.price);
     }
-  }, [form, equity, formData.inv_type, formData.quantity]);
+  }, [setValue, equity, formData.inv_type, formData.quantity]);
 
   if (isError) toast.error(error.message);
 

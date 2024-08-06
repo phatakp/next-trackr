@@ -1,4 +1,4 @@
-import { AcctStat, FullTxn } from "@/types";
+import { AcctStat, AcctType, FullTxn } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -18,7 +18,6 @@ export const getURL = () => {
   if (process.env.NODE_ENV === "production") {
     url = url.startsWith("http:") ? url : `https://${url}`;
   }
-  console.log("url:", url);
 
   return url;
 };
@@ -92,4 +91,45 @@ export function getTotalLiabilities(stats: AcctStat[]) {
   return stats
     .filter((s) => !s.is_asset)
     .reduce((acc, b) => acc + b.tot_value, 0);
+}
+
+export function getTotalLiquid(stats: AcctStat[]) {
+  return stats
+    .filter((s) => s.is_asset && s.type !== "investment")
+    .reduce((acc, b) => acc + b.tot_value, 0);
+}
+
+export function getCurrTypeValue(stats: AcctStat[], type: AcctType) {
+  return (
+    stats
+      ?.filter((s) => s.type === type)
+      .reduce((acc, b) => acc + b.tot_value, 0) ?? 0
+  );
+}
+
+export function getInvestmentReturn(stats: AcctStat[]) {
+  const value =
+    stats
+      ?.filter((s) => s.type === "investment")
+      .reduce((acc, b) => acc + b.tot_value, 0) ?? 0;
+  const cost =
+    stats
+      ?.filter((s) => s.type === "investment")
+      .reduce((acc, b) => acc + b.tot_balance, 0) ?? 0;
+  return cost > 0 ? ((value - cost) / cost) * 100 : 0;
+}
+
+export function getAccountChartData(stats: AcctStat[], type: AcctType) {
+  if (type === "investment")
+    return (
+      stats
+        ?.filter((s) => s.type === "investment")
+        .map((t) => ({ title: t.inv_type as string, value: t.tot_value })) ?? []
+    );
+  else
+    return (
+      stats
+        ?.filter((s) => s.type !== "investment")
+        .map((t) => ({ title: t.type as string, value: t.tot_value })) ?? []
+    );
 }

@@ -102,6 +102,32 @@ export type Database = {
         }
         Relationships: []
       }
+      common_tags: {
+        Row: {
+          category_id: number
+          id: number
+          text: string
+        }
+        Insert: {
+          category_id: number
+          id?: number
+          text: string
+        }
+        Update: {
+          category_id?: number
+          id?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "common_tags_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equity_accounts: {
         Row: {
           acct_id: number
@@ -208,29 +234,31 @@ export type Database = {
           },
         ]
       }
-      recurring_txns: {
+      profiles: {
         Row: {
-          end_date: string | null
-          frequency: Database["public"]["Enums"]["frequency_type_enum"]
-          id: number
-          last_txn_date: string
-          start_date: string
+          first_name: string
+          id: string
+          last_name: string | null
         }
         Insert: {
-          end_date?: string | null
-          frequency: Database["public"]["Enums"]["frequency_type_enum"]
-          id?: number
-          last_txn_date: string
-          start_date: string
+          first_name: string
+          id?: string
+          last_name?: string | null
         }
         Update: {
-          end_date?: string | null
-          frequency?: Database["public"]["Enums"]["frequency_type_enum"]
-          id?: number
-          last_txn_date?: string
-          start_date?: string
+          first_name?: string
+          id?: string
+          last_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -241,8 +269,9 @@ export type Database = {
           description: string | null
           destination_id: number | null
           group_id: number | null
+          grp_split_amt: number | null
+          grp_txn_type: Database["public"]["Enums"]["grp_txn_type_enum"] | null
           id: number
-          recurring_id: number | null
           source_id: number | null
           type: Database["public"]["Enums"]["transaction_type_enum"]
           user_id: string
@@ -255,8 +284,9 @@ export type Database = {
           description?: string | null
           destination_id?: number | null
           group_id?: number | null
+          grp_split_amt?: number | null
+          grp_txn_type?: Database["public"]["Enums"]["grp_txn_type_enum"] | null
           id?: number
-          recurring_id?: number | null
           source_id?: number | null
           type: Database["public"]["Enums"]["transaction_type_enum"]
           user_id?: string
@@ -269,8 +299,9 @@ export type Database = {
           description?: string | null
           destination_id?: number | null
           group_id?: number | null
+          grp_split_amt?: number | null
+          grp_txn_type?: Database["public"]["Enums"]["grp_txn_type_enum"] | null
           id?: number
-          recurring_id?: number | null
           source_id?: number | null
           type?: Database["public"]["Enums"]["transaction_type_enum"]
           user_id?: string
@@ -298,13 +329,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "transactions_recurring_id_fkey"
-            columns: ["recurring_id"]
-            isOneToOne: false
-            referencedRelation: "recurring_txns"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "transactions_source_id_fkey"
             columns: ["source_id"]
             isOneToOne: false
@@ -325,6 +349,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_group: {
+        Args: {
+          name: string
+          users: string[]
+        }
+        Returns: number
+      }
       credit_acct: {
         Args: {
           id_: number
@@ -349,7 +380,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_datewise_expense_stats: {
+      get_group_stats: {
+        Args: {
+          groupid: number
+        }
+        Returns: Json
+      }
+      get_monthly_expense_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
@@ -387,11 +424,7 @@ export type Database = {
           source_id?: number
           destination_id?: number
           group_id?: number
-          is_recurring?: boolean
-          end_date?: string
-          frequency?: string
-          last_txn_date?: string
-          start_date?: string
+          grp_txn_type?: string
         }
         Returns: number
       }
@@ -419,6 +452,7 @@ export type Database = {
           srcid?: number
           destid?: number
           grpid?: number
+          grptxntype?: string
         }
         Returns: number
       }
@@ -440,14 +474,7 @@ export type Database = {
         | "income"
         | "transfer"
         | "miscellaneous"
-      frequency_type_enum:
-        | "daily"
-        | "weekly"
-        | "biweekly"
-        | "monthly"
-        | "quarterly"
-        | "half-yearly"
-        | "annually"
+      grp_txn_type_enum: "split" | "you-owe-full" | "you-owe-none"
       investment_type_enum: "equity" | "fund" | "fd"
       transaction_type_enum: "expense" | "income" | "transfer"
     }

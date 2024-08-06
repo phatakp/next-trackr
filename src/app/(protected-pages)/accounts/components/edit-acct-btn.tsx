@@ -1,55 +1,52 @@
 "use client";
 import {
-  ModalButton,
-  ModalContent,
-  ModalWrapper,
+    ModalButton,
+    ModalContent,
+    ModalWrapper,
 } from "@/components/ui/custom/modal-wrapper";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TabWrapper from "@/components/ui/custom/tab-wrapper";
+import { TabsContent } from "@/components/ui/tabs";
+import { siteConfig } from "@/lib/site-config";
 import type { FullAccount, InvestmentType } from "@/types";
 import { ReactNode } from "react";
-import InvestmentFormWrapper from "./investment-form-wrapper";
-import NonInvestmentFormWrapper from "./non-investment-form-wrapper";
+import AcctFormWrapper from "./acct-form-wrapper";
 
 type Props = {
-  acct: FullAccount;
-  children: ReactNode;
+    acct: FullAccount;
+    children: ReactNode;
 };
 
 export default function EditAcctBtn({ acct, children }: Props) {
-  return (
-    <ModalWrapper>
-      <ModalButton>{children}</ModalButton>
-      <ModalContent
-        title="Edit Account"
-        description="Modify details for the account"
-      >
-        <div className="w-full my-4">
-          <Tabs
-            defaultValue={
-              acct.type === "investment" ? "investment" : "non-investment"
-            }
-            className="w-full"
-          >
-            <TabsList>
-              <TabsTrigger value="non-investment" disabled={!!acct}>
-                Non Investment
-              </TabsTrigger>
-              <TabsTrigger value="investment" disabled={!!acct}>
-                Investment
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="non-investment">
-              <NonInvestmentFormWrapper type={acct.type} acct={acct} />
-            </TabsContent>
-            <TabsContent value="investment">
-              <InvestmentFormWrapper
-                invType={acct.inv_type as InvestmentType}
-                acct={acct}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </ModalContent>
-    </ModalWrapper>
-  );
+    return (
+        <ModalWrapper>
+            <ModalButton>{children}</ModalButton>
+            <ModalContent
+                title="Edit Account"
+                description="Modify details for the account"
+            >
+                <div className="w-full my-4">
+                    <TabWrapper
+                        tabOptions={siteConfig.acctTabOptions}
+                        defaultValue={
+                            acct.type === "investment"
+                                ? "investment"
+                                : "non-investment"
+                        }
+                        isDisabled
+                    >
+                        <TabsContent value="non-investment">
+                            <AcctFormWrapper type={acct.type} acct={acct} />
+                        </TabsContent>
+                        <TabsContent value="investment">
+                            <AcctFormWrapper
+                                type="investment"
+                                invType={acct.inv_type as InvestmentType}
+                                acct={acct}
+                            />
+                        </TabsContent>
+                    </TabWrapper>
+                </div>
+            </ModalContent>
+        </ModalWrapper>
+    );
 }

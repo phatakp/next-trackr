@@ -8,34 +8,20 @@ import { usePathname } from "next/navigation";
 export function NavLink({ link }: { link: string }) {
   const path = usePathname();
   const isActive = path.slice(1) === link;
-  // const supabase = createClient();
-  // const [user, setUser] = useState<User | null>(null);
-
-  // useEffect(() => {
-  //   async function fetchSession() {
-  //     const { data } = await supabase.auth.getSession();
-  //     if (data.session?.user) setUser(data.session.user);
-  //   }
-
-  //   fetchSession();
-  // }, [supabase.auth]);
-
-  // if (!user) return;
 
   return (
     <Link
-      prefetch={false}
       href={`/${link}`}
       className={cn(
-        "text-foreground  relative grid gap-2 capitalize transition-colors ease-in-out",
+        "text-foreground  relative grid gap-1 capitalize transition-colors ease-in-out duration-500",
         !isActive && "hover:text-primary"
       )}
     >
       {link}
       <Separator
         className={cn(
-          "bg-primary absolute -bottom-2 h-1 opacity-0 transition-opacity duration-500 ease-in-out ",
-          isActive && "opacity-100"
+          "bg-primary h-1 opacity-0 w-0 transition-all duration-500 ease-in-out ",
+          isActive && "w-full opacity-100"
         )}
       />
     </Link>

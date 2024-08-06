@@ -20,9 +20,11 @@ export async function register(input: Zod.infer<typeof RegisterSchema>) {
   const { error } = await supabase.auth.signUp({
     ...input,
     options: {
+      data: { first_name: input.first_name, last_name: input.last_name },
       emailRedirectTo: `${getURL()}/auth/confirm`,
     },
   });
+  console.log(error);
   if (error) return { error: error.message, data: null };
   return { data, error: null };
 }
@@ -35,7 +37,7 @@ export async function loginWithGoogle() {
       redirectTo: `${getURL()}/auth/callback`,
     },
   });
-
+  console.log(error);
   if (error) return { error: error.message, url: null, provider: null };
   return redirect(data.url);
 }
@@ -46,4 +48,26 @@ export async function logout() {
 
   if (error) return { error: error.message };
   return redirect("/");
+}
+
+export async function getCurrUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+  return data;
+}
+
+export async function getUsers() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("*");
+  console.log(data);
+
+  return data;
 }

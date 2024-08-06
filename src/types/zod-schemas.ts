@@ -8,11 +8,9 @@ export const NewAccountFormParams = z.object({
     .min(2, "Acct Number / MF or Stock Code should have min 2 chars"),
   type: z.enum(siteConfig.acctTypes),
   inv_type: z.enum(siteConfig.invTypes).optional(),
-  balance: z.coerce
-    .number({
-      invalid_type_error: "Balance is required",
-    })
-    .positive("Should be more than 0"),
+  balance: z.coerce.number({
+    invalid_type_error: "Balance is required",
+  }),
   curr_value: z.coerce.number({
     invalid_type_error: "Curr Value is required",
   }),
@@ -32,6 +30,12 @@ export const NewAccountFormParams = z.object({
 
 export const NewAccountFormSchema = NewAccountFormParams.superRefine(
   (data, context) => {
+    if (data.type !== "credit-card" && data.balance === 0)
+      return context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Should be more than 0",
+        path: ["balance"],
+      });
     if (data.type !== "investment" && data.number.length < 4)
       return context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -68,6 +72,12 @@ export const NewAccountFormSchema = NewAccountFormParams.superRefine(
 export const UpdAccountFormSchema = NewAccountFormParams.extend({
   id: z.coerce.number(),
 }).superRefine((data, context) => {
+  if (data.type !== "credit-card" && data.balance === 0)
+    return context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Should be more than 0",
+      path: ["balance"],
+    });
   if (data.type !== "investment" && data.number.length < 4)
     return context.addIssue({
       code: z.ZodIssueCode.custom,
@@ -115,11 +125,8 @@ export const NewTxnFormParams = z.object({
   source_id: z.coerce.number().optional(),
   destination_id: z.coerce.number().optional(),
   group_id: z.coerce.number().optional(),
-  //Recurring Fields
-  is_recurring: z.boolean().optional(),
-  frequency: z.enum(siteConfig.frequency).optional(),
-  start_date: z.coerce.string().optional(),
-  end_date: z.coerce.string().optional(),
+  grp_txn_type: z.enum(siteConfig.grpTxnTypes).optional(),
+  user_id: z.string(),
 });
 
 export const NewTxnFormSchema = NewTxnFormParams.superRefine(
@@ -136,18 +143,13 @@ export const NewTxnFormSchema = NewTxnFormParams.superRefine(
         message: "Required",
         path: ["destination_id"],
       });
-    if (data.is_recurring && !data.start_date)
+    if (data.group_id && !data.grp_txn_type)
       return context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Required",
-        path: ["start_date"],
+        path: ["grp_txn_type"],
       });
-    if (data.is_recurring && !data.frequency)
-      return context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Required",
-        path: ["frequency"],
-      });
+    
   }
 );
 
@@ -166,16 +168,15 @@ export const UpdTxnFormSchema = NewTxnFormParams.extend({
       message: "Required",
       path: ["destination_id"],
     });
-  if (data.is_recurring && !data.start_date)
+  if (data.group_id && !data.grp_txn_type)
     return context.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Required",
-      path: ["start_date"],
+      path: ["grp_txn_type"],
     });
-  if (data.is_recurring && !data.frequency)
-    return context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Required",
-      path: ["frequency"],
-    });
+});
+
+export const NewGroupSchema = z.object({
+  name: z.string().min(3, "Should have min 3 chars"),
+  users: z.array(z.string()).min(2, "Should have min 2 users"),
 });
